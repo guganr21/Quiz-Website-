@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Knowledge Quiz</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <header class="app-header">
+                <h1><i class="fas fa-brain"></i> General Knowledge Quiz</h1>
+                <p class="subtitle">Test your knowledge with 300 questions across 3 categories</p>
+            </header>
+            
+            <div class="welcome-content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <i class="fas fa-question-circle"></i>
+                        <h3>300 Questions</h3>
+                        <p>Total questions in the bank</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-globe-americas"></i>
+                        <h3>3 Categories</h3>
+                        <p>GK, Geopolitics & Current Affairs</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-trophy"></i>
+                        <h3>Leaderboard</h3>
+                        <p>Top 10 scores saved</p>
+                    </div>
+                </div>
+                
+                <div class="player-setup">
+                    <h2><i class="fas fa-user"></i> Enter Your Name</h2>
+                    <input type="text" id="player-name" placeholder="Enter your name..." maxlength="20">
+                    <p class="hint">Your name will be saved on the leaderboard</p>
+                    
+                    <div class="category-selection">
+                        <h3><i class="fas fa-layer-group"></i> Quiz Categories</h3>
+                        <div class="category-options">
+                            <label class="category-option">
+                                <input type="checkbox" id="category-gk" checked>
+                                <span class="checkbox-custom"></span>
+                                <span class="category-label">General Knowledge (100)</span>
+                            </label>
+                            <label class="category-option">
+                                <input type="checkbox" id="category-geo" checked>
+                                <span class="checkbox-custom"></span>
+                                <span class="category-label">Geopolitics (100)</span>
+                            </label>
+                            <label class="category-option">
+                                <input type="checkbox" id="category-current" checked>
+                                <span class="checkbox-custom"></span>
+                                <span class="category-label">Current Affairs (100)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button id="start-btn" class="btn-primary">
+                        <i class="fas fa-play"></i> Start Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <header class="quiz-header">
+                <div class="quiz-info">
+                    <h2 id="current-category">General Knowledge</h2>
+                    <div class="progress-info">
+                        <span id="progress-text">Question 1 of 10</span>
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-info">
+                    <span id="current-player">Player</span>
+                    <span class="score-badge" id="current-score">Score: 0</span>
+                </div>
+            </header>
+            
+            <div class="quiz-content">
+                <div class="question-container">
+                    <h3 id="question-text">Question text will appear here</h3>
+                    
+                    <div class="options-container">
+                        <!-- Options will be dynamically inserted here -->
+                    </div>
+                    
+                    <div class="navigation-buttons">
+                        <button id="prev-btn" class="btn-secondary" disabled>
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button id="next-btn" class="btn-primary">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button id="submit-btn" class="btn-submit">
+                            <i class="fas fa-check-circle"></i> Submit Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <header class="results-header">
+                <h1><i class="fas fa-chart-bar"></i> Quiz Results</h1>
+                <p id="results-subtitle">You completed the quiz!</p>
+            </header>
+            
+            <div class="results-content">
+                <div class="score-card">
+                    <div class="score-circle">
+                        <span id="final-score">0</span>
+                        <span class="score-out-of">/10</span>
+                    </div>
+                    <h3 id="results-player">Player Name</h3>
+                    <p id="results-message">Keep practicing to improve your score!</p>
+                </div>
+                
+                <div class="results-details">
+                    <div class="result-stat correct">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h4>Correct Answers</h4>
+                            <p id="correct-count">0</p>
+                        </div>
+                    </div>
+                    <div class="result-stat incorrect">
+                        <i class="fas fa-times-circle"></i>
+                        <div>
+                            <h4>Incorrect Answers</h4>
+                            <p id="incorrect-count">0</p>
+                        </div>
+                    </div>
+                    <div class="result-stat time">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <h4>Time Taken</h4>
+                            <p id="time-taken">0:00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="retry-btn" class="btn-secondary">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                    <button id="leaderboard-btn" class="btn-primary">
+                        <i class="fas fa-trophy"></i> View Leaderboard
+                    </button>
+                    <button id="home-btn" class="btn-secondary">
+                        <i class="fas fa-home"></i> Back to Home
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Screen -->
+        <div id="leaderboard-screen" class="screen">
+            <header class="leaderboard-header">
+                <h1><i class="fas fa-crown"></i> Leaderboard</h1>
+                <p>Top 10 Highest Scores</p>
+            </header>
+            
+            <div class="leaderboard-content">
+                <div class="leaderboard-controls">
+                    <div class="filter-controls">
+                        <button id="all-scores-btn" class="filter-btn active">All Scores</button>
+                        <button id="today-scores-btn" class="filter-btn">Today</button>
+                        <button id="week-scores-btn" class="filter-btn">This Week</button>
+                    </div>
+                    <button id="clear-leaderboard" class="btn-clear">
+                        <i class="fas fa-trash"></i> Clear Leaderboard
+                    </button>
+                </div>
+                
+                <div class="leaderboard-table">
+                    <table id="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Leaderboard rows will be inserted here -->
+                        </tbody>
+                    </table>
+                    <div id="empty-leaderboard" class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <h3>No scores yet</h3>
+                        <p>Be the first to appear on the leaderboard!</p>
+                    </div>
+                </div>
+                
+                <div class="leaderboard-actions">
+                    <button id="back-to-home" class="btn-primary">
+                        <i class="fas fa-home"></i> Back to Home
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+</html>
