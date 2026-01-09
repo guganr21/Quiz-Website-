@@ -1,1846 +1,2637 @@
-const questionBank = {
-    // General Knowledge Questions (100 total)
-    generalKnowledge: [
-        // Original 10 questions remain...
+// Quiz Application - Main JavaScript File
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const screens = {
+        welcome: document.getElementById('welcome-screen'),
+        quiz: document.getElementById('quiz-screen'),
+        results: document.getElementById('results-screen'),
+        leaderboard: document.getElementById('leaderboard-screen')
+    };
+    
+    // Welcome screen elements
+    const playerNameInput = document.getElementById('player-name');
+    const startQuizBtn = document.getElementById('start-quiz');
+    const viewLeaderboardBtn = document.getElementById('view-leaderboard');
+    
+    // Quiz screen elements
+    const currentPlayerSpan = document.getElementById('current-player');
+    const questionCounter = document.getElementById('question-counter');
+    const scoreCounter = document.getElementById('score-counter');
+    const timerElement = document.getElementById('timer');
+    const progressBar = document.getElementById('progress-bar');
+    const questionElement = document.getElementById('question');
+    const optionsContainer = document.querySelector('.options-container');
+    const nextQuestionBtn = document.getElementById('next-question');
+    const quitQuizBtn = document.getElementById('quit-quiz');
+    
+    // Results screen elements
+    const resultsPlayerSpan = document.getElementById('results-player');
+    const finalScoreElement = document.getElementById('final-score');
+    const correctAnswersElement = document.getElementById('correct-answers');
+    const incorrectAnswersElement = document.getElementById('incorrect-answers');
+    const timeTakenElement = document.getElementById('time-taken');
+    const playAgainBtn = document.getElementById('play-again');
+    const viewLeaderboardResultsBtn = document.getElementById('view-leaderboard-results');
+    const goHomeBtn = document.getElementById('go-home');
+    
+    // Leaderboard screen elements
+    const leaderboardEntries = document.getElementById('leaderboard-entries');
+    const tabAllBtn = document.getElementById('tab-all');
+    const tabTodayBtn = document.getElementById('tab-today');
+    const clearLeaderboardBtn = document.getElementById('clear-leaderboard');
+    const backToHomeBtn = document.getElementById('back-to-home');
+    
+    // Quiz state variables
+    let quizState = {
+        playerName: '',
+        currentQuestionIndex: 0,
+        score: 0,
+        selectedQuestions: [],
+        userAnswers: [],
+        quizStartTime: null,
+        timerInterval: null,
+        elapsedTime: 0
+    };
+    
+    // Question Bank - 300 questions (100 from each category)
+    const questionBank = [
+        // ========== GENERAL KNOWLEDGE (100 Questions) ==========
         {
-            question: "What is the capital city of Australia?",
-            options: ["Sydney", "Melbourne", "Canberra", "Perth"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 1,
+            category: "General Knowledge",
+            question: "Which planet in our solar system is known as the 'Red Planet'?",
+            options: ["Venus", "Mars", "Jupiter", "Saturn"],
+            correctAnswer: 1
         },
-        // ... original 9 questions
-        
-        // Additional 90 questions:
         {
-            question: "How many continents are there?",
-            options: ["5", "6", "7", "8"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
+            id: 2,
+            category: "General Knowledge",
             question: "What is the largest mammal in the world?",
             options: ["African Elephant", "Blue Whale", "Giraffe", "Polar Bear"],
-            correct: 1,
-            category: "General Knowledge"
+            correctAnswer: 1
         },
         {
-            question: "Which organ pumps blood throughout the body?",
-            options: ["Lungs", "Liver", "Heart", "Brain"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 3,
+            category: "General Knowledge",
+            question: "Which chemical element has the symbol 'Au'?",
+            options: ["Silver", "Gold", "Argon", "Aluminum"],
+            correctAnswer: 1
         },
         {
-            question: "What is the main ingredient in guacamole?",
-            options: ["Tomato", "Avocado", "Pepper", "Onion"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 4,
+            category: "General Knowledge",
+            question: "In which year did the Titanic sink?",
+            options: ["1910", "1912", "1914", "1916"],
+            correctAnswer: 1
         },
         {
-            question: "Which country gifted the Statue of Liberty to the USA?",
-            options: ["Spain", "France", "England", "Italy"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 5,
+            category: "General Knowledge",
+            question: "Who painted the Mona Lisa?",
+            options: ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Michelangelo"],
+            correctAnswer: 1
         },
         {
-            question: "What is the chemical symbol for gold?",
-            options: ["Go", "Gd", "Au", "Ag"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 6,
+            category: "General Knowledge",
+            question: "What is the hardest natural substance on Earth?",
+            options: ["Gold", "Iron", "Diamond", "Platinum"],
+            correctAnswer: 2
         },
         {
-            question: "Which planet is closest to the Sun?",
-            options: ["Venus", "Mercury", "Earth", "Mars"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 7,
+            category: "General Knowledge",
+            question: "Which country is known as the Land of the Rising Sun?",
+            options: ["China", "Thailand", "Japan", "South Korea"],
+            correctAnswer: 2
         },
         {
-            question: "What is the name of the longest river in the world?",
-            options: ["Amazon", "Nile", "Yangtze", "Mississippi"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 8,
+            category: "General Knowledge",
+            question: "How many continents are there on Earth?",
+            options: ["5", "6", "7", "8"],
+            correctAnswer: 2
         },
         {
-            question: "Who discovered penicillin?",
-            options: ["Marie Curie", "Alexander Fleming", "Louis Pasteur", "Albert Einstein"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 9,
+            category: "General Knowledge",
+            question: "What is the smallest country in the world?",
+            options: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+            correctAnswer: 1
         },
         {
-            question: "What is the freezing point of water in Celsius?",
-            options: ["-1°C", "0°C", "1°C", "10°C"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 10,
+            category: "General Knowledge",
+            question: "Which ocean is the largest?",
+            options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+            correctAnswer: 3
         },
         {
-            question: "Which language is the most widely spoken in the world?",
-            options: ["English", "Spanish", "Mandarin Chinese", "Hindi"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 11,
+            category: "General Knowledge",
+            question: "What is the capital of France?",
+            options: ["Berlin", "Madrid", "Paris", "Rome"],
+            correctAnswer: 2
         },
         {
-            question: "What year did World War II end?",
-            options: ["1943", "1944", "1945", "1946"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 12,
+            category: "General Knowledge",
+            question: "Which planet is known as the 'Morning Star'?",
+            options: ["Mars", "Venus", "Mercury", "Jupiter"],
+            correctAnswer: 1
         },
         {
-            question: "Which gas do plants absorb from the atmosphere?",
-            options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 13,
+            category: "General Knowledge",
+            question: "Who wrote 'Romeo and Juliet'?",
+            options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+            correctAnswer: 1
         },
         {
-            question: "What is the capital of Canada?",
-            options: ["Toronto", "Vancouver", "Montreal", "Ottawa"],
-            correct: 3,
-            category: "General Knowledge"
+            id: 14,
+            category: "General Knowledge",
+            question: "What is the currency of Japan?",
+            options: ["Won", "Yen", "Yuan", "Ringgit"],
+            correctAnswer: 1
         },
         {
-            question: "How many bones are in the adult human body?",
-            options: ["206", "210", "212", "220"],
-            correct: 0,
-            category: "General Knowledge"
+            id: 15,
+            category: "General Knowledge",
+            question: "Which organ in the human body is responsible for pumping blood?",
+            options: ["Liver", "Lungs", "Heart", "Kidneys"],
+            correctAnswer: 2
         },
         {
-            question: "What is the fastest land animal?",
-            options: ["Lion", "Cheetah", "Pronghorn Antelope", "Leopard"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which planet has the most moons?",
-            options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
-            correct: 0,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the main ingredient in bread?",
-            options: ["Sugar", "Eggs", "Flour", "Butter"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which country is known as the Land of the Midnight Sun?",
-            options: ["Sweden", "Norway", "Finland", "Iceland"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
+            id: 16,
+            category: "General Knowledge",
             question: "What is the largest desert in the world?",
-            options: ["Sahara", "Arabian", "Gobi", "Antarctic"],
-            correct: 3,
-            category: "General Knowledge"
+            options: ["Sahara Desert", "Arabian Desert", "Gobi Desert", "Antarctic Desert"],
+            correctAnswer: 3
         },
         {
-            question: "Which element is essential for human bones?",
-            options: ["Iron", "Calcium", "Potassium", "Sodium"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 17,
+            category: "General Knowledge",
+            question: "Which gas do plants absorb from the atmosphere?",
+            options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+            correctAnswer: 2
         },
         {
-            question: "Who wrote 'The Odyssey'?",
-            options: ["Virgil", "Sophocles", "Homer", "Plato"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the smallest planet in our solar system?",
-            options: ["Mars", "Venus", "Mercury", "Pluto"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which country invented tea?",
-            options: ["Japan", "India", "China", "England"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
+            id: 18,
+            category: "General Knowledge",
             question: "What is the tallest mountain in the world?",
             options: ["K2", "Kangchenjunga", "Mount Everest", "Makalu"],
-            correct: 2,
-            category: "General Knowledge"
+            correctAnswer: 2
         },
         {
-            question: "Which fruit is known as the 'king of fruits'?",
-            options: ["Mango", "Durian", "Pineapple", "Papaya"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 19,
+            category: "General Knowledge",
+            question: "Which instrument measures atmospheric pressure?",
+            options: ["Thermometer", "Barometer", "Hygrometer", "Anemometer"],
+            correctAnswer: 1
         },
         {
-            question: "How many colors are in a rainbow?",
-            options: ["5", "6", "7", "8"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 20,
+            category: "General Knowledge",
+            question: "Who discovered penicillin?",
+            options: ["Marie Curie", "Alexander Fleming", "Louis Pasteur", "Robert Koch"],
+            correctAnswer: 1
         },
         {
-            question: "What is the capital of Egypt?",
-            options: ["Alexandria", "Cairo", "Giza", "Luxor"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 21,
+            category: "General Knowledge",
+            question: "Which element is essential for human bones and teeth?",
+            options: ["Iron", "Calcium", "Potassium", "Sodium"],
+            correctAnswer: 1
         },
         {
-            question: "Which animal is the national symbol of the United States?",
-            options: ["Bald Eagle", "American Bison", "Grizzly Bear", "Wolf"],
-            correct: 0,
-            category: "General Knowledge"
+            id: 22,
+            category: "General Knowledge",
+            question: "What is the largest organ in the human body?",
+            options: ["Liver", "Brain", "Skin", "Lungs"],
+            correctAnswer: 2
         },
         {
+            id: 23,
+            category: "General Knowledge",
+            question: "Which country gifted the Statue of Liberty to the United States?",
+            options: ["England", "Spain", "France", "Italy"],
+            correctAnswer: 2
+        },
+        {
+            id: 24,
+            category: "General Knowledge",
             question: "What is the chemical formula for water?",
-            options: ["H2O", "CO2", "NaCl", "O2"],
-            correct: 0,
-            category: "General Knowledge"
+            options: ["CO2", "H2O", "O2", "NaCl"],
+            correctAnswer: 1
         },
         {
-            question: "Which planet is known for its rings?",
+            id: 25,
+            category: "General Knowledge",
+            question: "Which planet has the most moons?",
             options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
-            correct: 1,
-            category: "General Knowledge"
+            correctAnswer: 1
         },
         {
-            question: "What is the largest internal organ in the human body?",
-            options: ["Heart", "Brain", "Liver", "Lungs"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which country is famous for the ancient pyramids?",
-            options: ["Greece", "Mexico", "Egypt", "Peru"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the boiling point of water in Celsius?",
-            options: ["90°C", "100°C", "110°C", "120°C"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "Who painted 'Starry Night'?",
-            options: ["Claude Monet", "Vincent van Gogh", "Pablo Picasso", "Rembrandt"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the currency of Japan?",
-            options: ["Won", "Yuan", "Yen", "Ringgit"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which ocean surrounds the Maldives?",
-            options: ["Pacific", "Atlantic", "Indian", "Arctic"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "How many players are on a soccer team?",
-            options: ["9", "10", "11", "12"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the capital of Brazil?",
-            options: ["Rio de Janeiro", "São Paulo", "Brasília", "Salvador"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which vitamin is produced when skin is exposed to sunlight?",
-            options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
-            correct: 3,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the fastest bird in the world?",
-            options: ["Golden Eagle", "Peregrine Falcon", "Swift", "Ostrich"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which metal is liquid at room temperature?",
-            options: ["Iron", "Mercury", "Lead", "Aluminum"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the largest island in the world?",
-            options: ["Borneo", "Madagascar", "Greenland", "New Guinea"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
+            id: 26,
+            category: "General Knowledge",
             question: "Who invented the telephone?",
             options: ["Thomas Edison", "Alexander Graham Bell", "Nikola Tesla", "Guglielmo Marconi"],
-            correct: 1,
-            category: "General Knowledge"
+            correctAnswer: 1
         },
         {
-            question: "What is the main language spoken in Brazil?",
-            options: ["Spanish", "Portuguese", "English", "French"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 27,
+            category: "General Knowledge",
+            question: "What is the fastest land animal?",
+            options: ["Lion", "Cheetah", "Leopard", "Pronghorn Antelope"],
+            correctAnswer: 1
         },
         {
-            question: "How many hearts does an octopus have?",
-            options: ["1", "2", "3", "4"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 28,
+            category: "General Knowledge",
+            question: "Which vitamin is produced when sunlight hits the skin?",
+            options: ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin D"],
+            correctAnswer: 3
         },
         {
-            question: "Which planet is the hottest?",
-            options: ["Mercury", "Venus", "Mars", "Jupiter"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 29,
+            category: "General Knowledge",
+            question: "What is the capital of Australia?",
+            options: ["Sydney", "Melbourne", "Canberra", "Perth"],
+            correctAnswer: 2
         },
         {
-            question: "What is the capital of South Korea?",
-            options: ["Busan", "Incheon", "Seoul", "Daegu"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
+            id: 30,
+            category: "General Knowledge",
             question: "Which blood type is known as the universal donor?",
-            options: ["A", "B", "AB", "O"],
-            correct: 3,
-            category: "General Knowledge"
+            options: ["A+", "B-", "AB+", "O-"],
+            correctAnswer: 3
         },
         {
-            question: "What is the longest bone in the human body?",
-            options: ["Humerus", "Femur", "Tibia", "Fibula"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 31,
+            category: "General Knowledge",
+            question: "How many bones are there in the adult human body?",
+            options: ["186", "206", "226", "246"],
+            correctAnswer: 1
         },
         {
-            question: "Which country is the largest by area?",
-            options: ["Canada", "China", "United States", "Russia"],
-            correct: 3,
-            category: "General Knowledge"
+            id: 32,
+            category: "General Knowledge",
+            question: "What is the largest bird in the world?",
+            options: ["Emu", "Ostrich", "Albatross", "Condor"],
+            correctAnswer: 1
         },
         {
-            question: "What is the capital of Italy?",
-            options: ["Milan", "Rome", "Florence", "Venice"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 33,
+            category: "General Knowledge",
+            question: "Which planet is closest to the Sun?",
+            options: ["Venus", "Mercury", "Earth", "Mars"],
+            correctAnswer: 1
         },
         {
-            question: "How many time zones are there in Russia?",
-            options: ["5", "7", "9", "11"],
-            correct: 3,
-            category: "General Knowledge"
+            id: 34,
+            category: "General Knowledge",
+            question: "What is the main ingredient in guacamole?",
+            options: ["Tomato", "Avocado", "Onion", "Pepper"],
+            correctAnswer: 1
         },
         {
+            id: 35,
+            category: "General Knowledge",
+            question: "Who wrote 'War and Peace'?",
+            options: ["Fyodor Dostoevsky", "Leo Tolstoy", "Anton Chekhov", "Ivan Turgenev"],
+            correctAnswer: 1
+        },
+        {
+            id: 36,
+            category: "General Knowledge",
+            question: "Which language has the most native speakers?",
+            options: ["English", "Spanish", "Hindi", "Mandarin Chinese"],
+            correctAnswer: 3
+        },
+        {
+            id: 37,
+            category: "General Knowledge",
+            question: "What is the longest river in the world?",
+            options: ["Amazon River", "Nile River", "Yangtze River", "Mississippi River"],
+            correctAnswer: 1
+        },
+        {
+            id: 38,
+            category: "General Knowledge",
+            question: "Which element has the atomic number 1?",
+            options: ["Helium", "Hydrogen", "Lithium", "Oxygen"],
+            correctAnswer: 1
+        },
+        {
+            id: 39,
+            category: "General Knowledge",
+            question: "What is the capital of Canada?",
+            options: ["Toronto", "Vancouver", "Ottawa", "Montreal"],
+            correctAnswer: 2
+        },
+        {
+            id: 40,
+            category: "General Knowledge",
+            question: "Which planet has a prominent ring system?",
+            options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
+            correctAnswer: 1
+        },
+        {
+            id: 41,
+            category: "General Knowledge",
+            question: "Who painted the ceiling of the Sistine Chapel?",
+            options: ["Leonardo da Vinci", "Raphael", "Michelangelo", "Donatello"],
+            correctAnswer: 2
+        },
+        {
+            id: 42,
+            category: "General Knowledge",
+            question: "What is the smallest unit of life?",
+            options: ["Atom", "Molecule", "Cell", "Tissue"],
+            correctAnswer: 2
+        },
+        {
+            id: 43,
+            category: "General Knowledge",
+            question: "Which country is the largest producer of coffee?",
+            options: ["Colombia", "Vietnam", "Brazil", "Ethiopia"],
+            correctAnswer: 2
+        },
+        {
+            id: 44,
+            category: "General Knowledge",
+            question: "What is the freezing point of water in Fahrenheit?",
+            options: ["0°F", "32°F", "100°F", "212°F"],
+            correctAnswer: 1
+        },
+        {
+            id: 45,
+            category: "General Knowledge",
+            question: "Who is known as the Father of Computers?",
+            options: ["Alan Turing", "Charles Babbage", "John von Neumann", "Steve Jobs"],
+            correctAnswer: 1
+        },
+        {
+            id: 46,
+            category: "General Knowledge",
+            question: "Which gas makes up most of the Earth's atmosphere?",
+            options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"],
+            correctAnswer: 2
+        },
+        {
+            id: 47,
+            category: "General Knowledge",
+            question: "What is the capital of Egypt?",
+            options: ["Alexandria", "Cairo", "Giza", "Luxor"],
+            correctAnswer: 1
+        },
+        {
+            id: 48,
+            category: "General Knowledge",
+            question: "Which animal is known as the 'Ship of the Desert'?",
+            options: ["Horse", "Elephant", "Camel", "Donkey"],
+            correctAnswer: 2
+        },
+        {
+            id: 49,
+            category: "General Knowledge",
+            question: "What is the square root of 144?",
+            options: ["10", "11", "12", "13"],
+            correctAnswer: 2
+        },
+        {
+            id: 50,
+            category: "General Knowledge",
+            question: "Who discovered gravity?",
+            options: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Stephen Hawking"],
+            correctAnswer: 1
+        },
+        {
+            id: 51,
+            category: "General Knowledge",
             question: "What is the chemical symbol for silver?",
             options: ["Si", "Ag", "Au", "Sr"],
-            correct: 1,
-            category: "General Knowledge"
+            correctAnswer: 1
         },
         {
-            question: "Which planet takes the longest to orbit the Sun?",
-            options: ["Saturn", "Uranus", "Neptune", "Pluto"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 52,
+            category: "General Knowledge",
+            question: "Which planet is known as the 'Evening Star'?",
+            options: ["Mars", "Venus", "Mercury", "Jupiter"],
+            correctAnswer: 1
         },
         {
-            question: "What is the most common blood type?",
-            options: ["A+", "B+", "O+", "AB+"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 53,
+            category: "General Knowledge",
+            question: "What is the largest species of shark?",
+            options: ["Great White Shark", "Tiger Shark", "Whale Shark", "Hammerhead Shark"],
+            correctAnswer: 2
         },
         {
-            question: "Which country has the most pyramids?",
-            options: ["Egypt", "Mexico", "Sudan", "Peru"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 54,
+            category: "General Knowledge",
+            question: "Which organ produces insulin?",
+            options: ["Liver", "Pancreas", "Kidney", "Stomach"],
+            correctAnswer: 1
         },
         {
-            question: "How many strings does a standard guitar have?",
+            id: 55,
+            category: "General Knowledge",
+            question: "What is the capital of Italy?",
+            options: ["Venice", "Florence", "Rome", "Milan"],
+            correctAnswer: 2
+        },
+        {
+            id: 56,
+            category: "General Knowledge",
+            question: "How many colors are there in a rainbow?",
+            options: ["5", "6", "7", "8"],
+            correctAnswer: 2
+        },
+        {
+            id: 57,
+            category: "General Knowledge",
+            question: "Who wrote 'The Odyssey'?",
+            options: ["Virgil", "Homer", "Sophocles", "Plato"],
+            correctAnswer: 1
+        },
+        {
+            id: 58,
+            category: "General Knowledge",
+            question: "What is the largest type of bear?",
+            options: ["Grizzly Bear", "Polar Bear", "Brown Bear", "Black Bear"],
+            correctAnswer: 1
+        },
+        {
+            id: 59,
+            category: "General Knowledge",
+            question: "Which planet is known for its Great Red Spot?",
+            options: ["Mars", "Jupiter", "Saturn", "Neptune"],
+            correctAnswer: 1
+        },
+        {
+            id: 60,
+            category: "General Knowledge",
+            question: "What is the study of fossils called?",
+            options: ["Archaeology", "Paleontology", "Geology", "Anthropology"],
+            correctAnswer: 1
+        },
+        {
+            id: 61,
+            category: "General Knowledge",
+            question: "Who invented the light bulb?",
+            options: ["Thomas Edison", "Nikola Tesla", "Alexander Graham Bell", "Benjamin Franklin"],
+            correctAnswer: 0
+        },
+        {
+            id: 62,
+            category: "General Knowledge",
+            question: "What is the capital of Germany?",
+            options: ["Munich", "Frankfurt", "Berlin", "Hamburg"],
+            correctAnswer: 2
+        },
+        {
+            id: 63,
+            category: "General Knowledge",
+            question: "Which gas is used in balloons to make them float?",
+            options: ["Hydrogen", "Helium", "Oxygen", "Nitrogen"],
+            correctAnswer: 1
+        },
+        {
+            id: 64,
+            category: "General Knowledge",
+            question: "What is the largest internal organ in the human body?",
+            options: ["Heart", "Brain", "Liver", "Lungs"],
+            correctAnswer: 2
+        },
+        {
+            id: 65,
+            category: "General Knowledge",
+            question: "Which country is famous for the pyramids?",
+            options: ["Mexico", "Greece", "Egypt", "Peru"],
+            correctAnswer: 2
+        },
+        {
+            id: 66,
+            category: "General Knowledge",
+            question: "How many sides does a hexagon have?",
             options: ["4", "5", "6", "7"],
-            correct: 2,
-            category: "General Knowledge"
+            correctAnswer: 2
         },
         {
-            question: "What is the capital of Argentina?",
-            options: ["Buenos Aires", "Córdoba", "Rosario", "Mendoza"],
-            correct: 0,
-            category: "General Knowledge"
+            id: 67,
+            category: "General Knowledge",
+            question: "Who painted 'Starry Night'?",
+            options: ["Pablo Picasso", "Vincent van Gogh", "Claude Monet", "Salvador Dali"],
+            correctAnswer: 1
         },
         {
-            question: "Which bird is a symbol of peace?",
-            options: ["Eagle", "Swan", "Dove", "Owl"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 68,
+            category: "General Knowledge",
+            question: "What is the fastest bird in the world?",
+            options: ["Eagle", "Falcon", "Swift", "Ostrich"],
+            correctAnswer: 1
         },
         {
-            question: "What is the main ingredient in sushi rice seasoning?",
-            options: ["Salt", "Sugar", "Vinegar", "Soy Sauce"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 69,
+            category: "General Knowledge",
+            question: "Which planet is the hottest in our solar system?",
+            options: ["Mercury", "Venus", "Mars", "Jupiter"],
+            correctAnswer: 1
         },
         {
+            id: 70,
+            category: "General Knowledge",
+            question: "What is the study of earthquakes called?",
+            options: ["Volcanology", "Seismology", "Meteorology", "Geology"],
+            correctAnswer: 1
+        },
+        {
+            id: 71,
+            category: "General Knowledge",
+            question: "Who discovered America?",
+            options: ["Christopher Columbus", "Amerigo Vespucci", "Ferdinand Magellan", "Vasco da Gama"],
+            correctAnswer: 0
+        },
+        {
+            id: 72,
+            category: "General Knowledge",
+            question: "What is the capital of Russia?",
+            options: ["St. Petersburg", "Moscow", "Kazan", "Novosibirsk"],
+            correctAnswer: 1
+        },
+        {
+            id: 73,
+            category: "General Knowledge",
+            question: "Which vitamin is also known as ascorbic acid?",
+            options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+            correctAnswer: 2
+        },
+        {
+            id: 74,
+            category: "General Knowledge",
+            question: "What is the largest bone in the human body?",
+            options: ["Skull", "Femur", "Pelvis", "Spine"],
+            correctAnswer: 1
+        },
+        {
+            id: 75,
+            category: "General Knowledge",
+            question: "Which country invented paper?",
+            options: ["India", "Egypt", "China", "Greece"],
+            correctAnswer: 2
+        },
+        {
+            id: 76,
+            category: "General Knowledge",
             question: "How many teeth does an adult human have?",
             options: ["28", "30", "32", "34"],
-            correct: 2,
-            category: "General Knowledge"
+            correctAnswer: 2
         },
         {
-            question: "Which planet is known as the Morning Star?",
-            options: ["Mars", "Venus", "Jupiter", "Mercury"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 77,
+            category: "General Knowledge",
+            question: "Who wrote 'Pride and Prejudice'?",
+            options: ["Charlotte Bronte", "Emily Bronte", "Jane Austen", "Mary Shelley"],
+            correctAnswer: 2
         },
         {
-            question: "What is the capital of Turkey?",
-            options: ["Istanbul", "Ankara", "Izmir", "Antalya"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 78,
+            category: "General Knowledge",
+            question: "What is the largest big cat in the world?",
+            options: ["Lion", "Tiger", "Jaguar", "Leopard"],
+            correctAnswer: 1
         },
         {
-            question: "Which animal can change its color?",
-            options: ["Frog", "Chameleon", "Snake", "Butterfly"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 79,
+            category: "General Knowledge",
+            question: "Which planet has the longest day?",
+            options: ["Mercury", "Venus", "Earth", "Mars"],
+            correctAnswer: 1
         },
         {
-            question: "What is the chemical symbol for potassium?",
-            options: ["Pt", "P", "Po", "K"],
-            correct: 3,
-            category: "General Knowledge"
+            id: 80,
+            category: "General Knowledge",
+            question: "What is the study of plants called?",
+            options: ["Zoology", "Botany", "Biology", "Ecology"],
+            correctAnswer: 1
         },
         {
-            question: "How many eyes does a spider typically have?",
-            options: ["2", "4", "6", "8"],
-            correct: 3,
-            category: "General Knowledge"
+            id: 81,
+            category: "General Knowledge",
+            question: "Who invented the printing press?",
+            options: ["Johannes Gutenberg", "Leonardo da Vinci", "Benjamin Franklin", "William Caxton"],
+            correctAnswer: 0
         },
         {
-            question: "What is the capital of New Zealand?",
-            options: ["Auckland", "Christchurch", "Wellington", "Queenstown"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which fruit is known for having the most potassium?",
-            options: ["Orange", "Apple", "Banana", "Kiwi"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the largest species of bear?",
-            options: ["Grizzly Bear", "Polar Bear", "Brown Bear", "Black Bear"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which country is home to the kangaroo?",
-            options: ["South Africa", "New Zealand", "Australia", "Argentina"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
+            id: 82,
+            category: "General Knowledge",
             question: "What is the capital of Spain?",
-            options: ["Barcelona", "Madrid", "Seville", "Valencia"],
-            correct: 1,
-            category: "General Knowledge"
+            options: ["Barcelona", "Seville", "Madrid", "Valencia"],
+            correctAnswer: 2
         },
         {
-            question: "How many legs does a lobster have?",
-            options: ["6", "8", "10", "12"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 83,
+            category: "General Knowledge",
+            question: "Which metal is liquid at room temperature?",
+            options: ["Iron", "Mercury", "Gold", "Aluminum"],
+            correctAnswer: 1
         },
         {
-            question: "Which planet is most similar in size to Earth?",
-            options: ["Mars", "Venus", "Mercury", "Pluto"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 84,
+            category: "General Knowledge",
+            question: "What is the largest gland in the human body?",
+            options: ["Pancreas", "Thyroid", "Liver", "Pituitary"],
+            correctAnswer: 2
         },
         {
-            question: "What is the chemical symbol for sodium?",
-            options: ["So", "Sd", "Na", "Ni"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 85,
+            category: "General Knowledge",
+            question: "Which country is known as the Land of the Midnight Sun?",
+            options: ["Sweden", "Norway", "Finland", "Iceland"],
+            correctAnswer: 1
         },
         {
-            question: "Which country is shaped like a boot?",
-            options: ["Greece", "Italy", "Portugal", "Thailand"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 86,
+            category: "General Knowledge",
+            question: "How many players are there in a baseball team?",
+            options: ["9", "10", "11", "12"],
+            correctAnswer: 0
         },
         {
-            question: "What is the largest type of deer?",
-            options: ["White-tailed Deer", "Elk", "Moose", "Reindeer"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 87,
+            category: "General Knowledge",
+            question: "Who composed the 'Moonlight Sonata'?",
+            options: ["Mozart", "Beethoven", "Bach", "Chopin"],
+            correctAnswer: 1
         },
         {
-            question: "How many symphonies did Beethoven compose?",
-            options: ["5", "7", "9", "12"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 88,
+            category: "General Knowledge",
+            question: "What is the fastest fish in the ocean?",
+            options: ["Marlin", "Tuna", "Sailfish", "Swordfish"],
+            correctAnswer: 2
         },
         {
-            question: "What is the capital of Thailand?",
-            options: ["Phuket", "Chiang Mai", "Bangkok", "Pattaya"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 89,
+            category: "General Knowledge",
+            question: "Which planet has the most volcanoes?",
+            options: ["Earth", "Mars", "Venus", "Io (moon of Jupiter)"],
+            correctAnswer: 3
         },
         {
-            question: "Which metal is the best conductor of electricity?",
-            options: ["Copper", "Gold", "Silver", "Aluminum"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 90,
+            category: "General Knowledge",
+            question: "What is the study of the universe called?",
+            options: ["Astronomy", "Cosmology", "Astrophysics", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "How many chambers are in the human heart?",
-            options: ["2", "3", "4", "5"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 91,
+            category: "General Knowledge",
+            question: "Who discovered radioactivity?",
+            options: ["Marie Curie", "Ernest Rutherford", "Henri Becquerel", "Max Planck"],
+            correctAnswer: 2
         },
         {
-            question: "What is the tallest building in the world?",
-            options: ["Shanghai Tower", "Burj Khalifa", "Petronas Towers", "Taipei 101"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 92,
+            category: "General Knowledge",
+            question: "What is the capital of Brazil?",
+            options: ["Rio de Janeiro", "São Paulo", "Brasília", "Salvador"],
+            correctAnswer: 2
         },
         {
-            question: "Which country invented paper?",
-            options: ["Egypt", "Greece", "China", "India"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 93,
+            category: "General Knowledge",
+            question: "Which gas is known as laughing gas?",
+            options: ["Nitrous Oxide", "Carbon Monoxide", "Methane", "Helium"],
+            correctAnswer: 0
         },
         {
-            question: "What is the capital of Russia?",
-            options: ["St. Petersburg", "Moscow", "Novosibirsk", "Kazan"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 94,
+            category: "General Knowledge",
+            question: "What is the smallest bone in the human body?",
+            options: ["Stapes (in ear)", "Femur", "Rib", "Finger bone"],
+            correctAnswer: 0
         },
         {
-            question: "How many planets in our solar system have rings?",
-            options: ["2", "3", "4", "5"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 95,
+            category: "General Knowledge",
+            question: "Which country is the largest producer of diamonds?",
+            options: ["South Africa", "Russia", "Botswana", "Canada"],
+            correctAnswer: 1
         },
         {
-            question: "Which flower is the national symbol of England?",
-            options: ["Rose", "Daffodil", "Thistle", "Shamrock"],
-            correct: 0,
-            category: "General Knowledge"
+            id: 96,
+            category: "General Knowledge",
+            question: "How many hearts does an octopus have?",
+            options: ["1", "2", "3", "4"],
+            correctAnswer: 2
         },
         {
-            question: "What is the chemical symbol for iron?",
-            options: ["Ir", "In", "Fe", "Fr"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 97,
+            category: "General Knowledge",
+            question: "Who wrote 'The Divine Comedy'?",
+            options: ["Dante Alighieri", "Geoffrey Chaucer", "John Milton", "Virgil"],
+            correctAnswer: 0
         },
         {
-            question: "Which country has the most islands?",
-            options: ["Philippines", "Indonesia", "Sweden", "Norway"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 98,
+            category: "General Knowledge",
+            question: "What is the largest reptile in the world?",
+            options: ["Komodo Dragon", "Saltwater Crocodile", "Anaconda", "Leatherback Turtle"],
+            correctAnswer: 1
         },
         {
-            question: "What is the largest bird in the world?",
-            options: ["Emu", "Ostrich", "Albatross", "Cassowary"],
-            correct: 1,
-            category: "General Knowledge"
+            id: 99,
+            category: "General Knowledge",
+            question: "Which planet has the strongest winds?",
+            options: ["Earth", "Mars", "Jupiter", "Neptune"],
+            correctAnswer: 3
         },
         {
-            question: "How many years are in a millennium?",
-            options: ["100", "500", "1000", "2000"],
-            correct: 2,
-            category: "General Knowledge"
+            id: 100,
+            category: "General Knowledge",
+            question: "What is the study of animal behavior called?",
+            options: ["Ethology", "Ecology", "Zoology", "Biology"],
+            correctAnswer: 0
         },
-        {
-            question: "What is the capital of South Africa?",
-            options: ["Cape Town", "Pretoria", "Johannesburg", "Durban"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which animal sleeps standing up?",
-            options: ["Elephant", "Giraffe", "Horse", "Zebra"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the chemical symbol for carbon?",
-            options: ["Ca", "Co", "C", "Cr"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which country has the most volcanoes?",
-            options: ["Japan", "Indonesia", "United States", "Chile"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "How many keys are on a standard piano?",
-            options: ["76", "88", "92", "96"],
-            correct: 1,
-            category: "General Knowledge"
-        },
-        {
-            question: "What is the capital of France?",
-            options: ["Lyon", "Marseille", "Paris", "Nice"],
-            correct: 2,
-            category: "General Knowledge"
-        },
-        {
-            question: "Which planet has the most visible rings?",
-            options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
-            correct: 1,
-            category: "General Knowledge"
-        }
-        // Total: 100 General Knowledge questions
-    ],
-    
-    // Geopolitics Questions (100 total)
-    geopolitics: [
-        // Original 10 questions remain...
-        {
-            question: "Which country is not a permanent member of the United Nations Security Council?",
-            options: ["United States", "China", "Germany", "Russia"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        // ... original 9 questions
         
-        // Additional 90 questions:
+        // ========== GEOPOLITICS (100 Questions) ==========
         {
-            question: "What year did the Soviet Union collapse?",
-            options: ["1989", "1990", "1991", "1992"],
-            correct: 2,
-            category: "Geopolitics"
+            id: 101,
+            category: "Geopolitics",
+            question: "Which country is the largest by land area?",
+            options: ["United States", "China", "Canada", "Russia"],
+            correctAnswer: 3
         },
         {
-            question: "Which country has the world's largest standing army?",
-            options: ["United States", "China", "India", "Russia"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 102,
+            category: "Geopolitics",
+            question: "What is the capital of Australia?",
+            options: ["Sydney", "Melbourne", "Canberra", "Perth"],
+            correctAnswer: 2
         },
         {
-            question: "What is the capital of Afghanistan?",
-            options: ["Kandahar", "Kabul", "Herat", "Mazar-i-Sharif"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 103,
+            category: "Geopolitics",
+            question: "Which organization was established after World War II to promote international peace and security?",
+            options: ["European Union", "United Nations", "NATO", "World Bank"],
+            correctAnswer: 1
         },
         {
-            question: "Which European country is not in the European Union?",
-            options: ["Switzerland", "Austria", "Belgium", "Netherlands"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 104,
+            category: "Geopolitics",
+            question: "Which country is not a permanent member of the United Nations Security Council?",
+            options: ["France", "United Kingdom", "Germany", "China"],
+            correctAnswer: 2
         },
         {
-            question: "What is the currency of the United Kingdom?",
-            options: ["Euro", "Pound Sterling", "Dollar", "Franc"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 105,
+            category: "Geopolitics",
+            question: "Which two countries share the longest international border?",
+            options: ["Russia and China", "Canada and the USA", "Argentina and Chile", "India and Bangladesh"],
+            correctAnswer: 1
         },
         {
-            question: "Which country is the world's largest oil producer?",
-            options: ["Russia", "Saudi Arabia", "United States", "Canada"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Israel?",
-            options: ["Tel Aviv", "Jerusalem", "Haifa", "Eilat"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which organization replaced GATT in 1995?",
-            options: ["UNESCO", "WTO", "IMF", "World Bank"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the smallest country in South America?",
-            options: ["Uruguay", "Suriname", "Guyana", "Ecuador"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
+            id: 106,
+            category: "Geopolitics",
             question: "Which country has the most time zones?",
-            options: ["United States", "Russia", "China", "Australia"],
-            correct: 1,
-            category: "Geopolitics"
+            options: ["Russia", "United States", "China", "France"],
+            correctAnswer: 3
         },
         {
+            id: 107,
+            category: "Geopolitics",
+            question: "What is the capital of Turkey?",
+            options: ["Istanbul", "Ankara", "Izmir", "Bursa"],
+            correctAnswer: 1
+        },
+        {
+            id: 108,
+            category: "Geopolitics",
+            question: "Which country is known as the 'Land of the White Elephant'?",
+            options: ["India", "Thailand", "Myanmar", "Cambodia"],
+            correctAnswer: 1
+        },
+        {
+            id: 109,
+            category: "Geopolitics",
+            question: "What is the smallest country in the European Union?",
+            options: ["Malta", "Luxembourg", "Cyprus", "Slovenia"],
+            correctAnswer: 0
+        },
+        {
+            id: 110,
+            category: "Geopolitics",
+            question: "Which country has the world's longest coastline?",
+            options: ["Russia", "Canada", "Indonesia", "Australia"],
+            correctAnswer: 1
+        },
+        {
+            id: 111,
+            category: "Geopolitics",
+            question: "What is the capital of Saudi Arabia?",
+            options: ["Mecca", "Medina", "Riyadh", "Jeddah"],
+            correctAnswer: 2
+        },
+        {
+            id: 112,
+            category: "Geopolitics",
+            question: "Which country was divided into North and South after World War II?",
+            options: ["Vietnam", "Germany", "Korea", "Yemen"],
+            correctAnswer: 2
+        },
+        {
+            id: 113,
+            category: "Geopolitics",
+            question: "What is the most populous country in Africa?",
+            options: ["South Africa", "Egypt", "Nigeria", "Ethiopia"],
+            correctAnswer: 2
+        },
+        {
+            id: 114,
+            category: "Geopolitics",
+            question: "Which country is not a member of the European Union?",
+            options: ["Switzerland", "Austria", "Poland", "Ireland"],
+            correctAnswer: 0
+        },
+        {
+            id: 115,
+            category: "Geopolitics",
+            question: "What is the capital of Argentina?",
+            options: ["Buenos Aires", "Santiago", "Lima", "Montevideo"],
+            correctAnswer: 0
+        },
+        {
+            id: 116,
+            category: "Geopolitics",
+            question: "Which country is the world's largest island?",
+            options: ["Australia", "Greenland", "Madagascar", "Borneo"],
+            correctAnswer: 1
+        },
+        {
+            id: 117,
+            category: "Geopolitics",
             question: "What is the capital of Pakistan?",
             options: ["Karachi", "Lahore", "Islamabad", "Rawalpindi"],
-            correct: 2,
-            category: "Geopolitics"
+            correctAnswer: 2
         },
         {
-            question: "Which country is the largest producer of coffee?",
-            options: ["Colombia", "Brazil", "Vietnam", "Ethiopia"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 118,
+            category: "Geopolitics",
+            question: "Which country was formerly known as Persia?",
+            options: ["Iraq", "Iran", "Afghanistan", "Turkey"],
+            correctAnswer: 1
         },
         {
-            question: "What year did India gain independence from Britain?",
-            options: ["1945", "1947", "1949", "1951"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 119,
+            category: "Geopolitics",
+            question: "What is the highest capital city in the world?",
+            options: ["Quito", "Bogotá", "La Paz", "Kathmandu"],
+            correctAnswer: 2
         },
         {
-            question: "Which country has the world's highest GDP per capita?",
-            options: ["Luxembourg", "Switzerland", "Norway", "Qatar"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Iran?",
-            options: ["Tabriz", "Mashhad", "Tehran", "Isfahan"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        {
+            id: 120,
+            category: "Geopolitics",
             question: "Which country has the most official languages?",
             options: ["India", "South Africa", "Switzerland", "Bolivia"],
-            correct: 3,
-            category: "Geopolitics"
+            correctAnswer: 3
         },
         {
-            question: "What is the currency of Russia?",
-            options: ["Ruble", "Rouble", "Kopeck", "Mark"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 121,
+            category: "Geopolitics",
+            question: "What is the capital of South Korea?",
+            options: ["Busan", "Seoul", "Incheon", "Daegu"],
+            correctAnswer: 1
         },
         {
-            question: "Which country has the world's largest gold reserves?",
-            options: ["United States", "Germany", "Italy", "France"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 122,
+            category: "Geopolitics",
+            question: "Which country was the first to grant women the right to vote?",
+            options: ["United States", "United Kingdom", "New Zealand", "Finland"],
+            correctAnswer: 2
         },
         {
+            id: 123,
+            category: "Geopolitics",
+            question: "What is the largest country in South America by area?",
+            options: ["Argentina", "Brazil", "Peru", "Colombia"],
+            correctAnswer: 1
+        },
+        {
+            id: 124,
+            category: "Geopolitics",
+            question: "Which country is home to the world's largest democracy?",
+            options: ["United States", "India", "Indonesia", "Brazil"],
+            correctAnswer: 1
+        },
+        {
+            id: 125,
+            category: "Geopolitics",
+            question: "What is the capital of Iran?",
+            options: ["Tehran", "Mashhad", "Isfahan", "Tabriz"],
+            correctAnswer: 0
+        },
+        {
+            id: 126,
+            category: "Geopolitics",
+            question: "Which country has the most natural lakes?",
+            options: ["Russia", "Canada", "Finland", "United States"],
+            correctAnswer: 1
+        },
+        {
+            id: 127,
+            category: "Geopolitics",
+            question: "What is the capital of Egypt?",
+            options: ["Alexandria", "Cairo", "Giza", "Luxor"],
+            correctAnswer: 1
+        },
+        {
+            id: 128,
+            category: "Geopolitics",
+            question: "Which country is the world's largest archipelago?",
+            options: ["Philippines", "Indonesia", "Japan", "Malaysia"],
+            correctAnswer: 1
+        },
+        {
+            id: 129,
+            category: "Geopolitics",
+            question: "What is the smallest continent by land area?",
+            options: ["Europe", "Australia", "Antarctica", "South America"],
+            correctAnswer: 1
+        },
+        {
+            id: 130,
+            category: "Geopolitics",
+            question: "Which country has the highest population density?",
+            options: ["Singapore", "Monaco", "Vatican City", "Bangladesh"],
+            correctAnswer: 1
+        },
+        {
+            id: 131,
+            category: "Geopolitics",
+            question: "What is the capital of Mexico?",
+            options: ["Guadalajara", "Monterrey", "Mexico City", "Cancún"],
+            correctAnswer: 2
+        },
+        {
+            id: 132,
+            category: "Geopolitics",
+            question: "Which country was the first to adopt Christianity as its state religion?",
+            options: ["Rome", "Armenia", "Ethiopia", "Byzantine Empire"],
+            correctAnswer: 1
+        },
+        {
+            id: 133,
+            category: "Geopolitics",
+            question: "What is the largest country in Africa by area?",
+            options: ["Democratic Republic of Congo", "Sudan", "Algeria", "Libya"],
+            correctAnswer: 2
+        },
+        {
+            id: 134,
+            category: "Geopolitics",
+            question: "Which country has the most volcanoes?",
+            options: ["Indonesia", "United States", "Japan", "Russia"],
+            correctAnswer: 0
+        },
+        {
+            id: 135,
+            category: "Geopolitics",
             question: "What is the capital of Nigeria?",
             options: ["Lagos", "Abuja", "Kano", "Ibadan"],
-            correct: 1,
-            category: "Geopolitics"
+            correctAnswer: 1
         },
         {
-            question: "Which country is the largest producer of diamonds?",
-            options: ["South Africa", "Russia", "Botswana", "Democratic Republic of Congo"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 136,
+            category: "Geopolitics",
+            question: "Which country has the most islands?",
+            options: ["Sweden", "Norway", "Finland", "Canada"],
+            correctAnswer: 0
         },
         {
-            question: "What year was the European Union established?",
-            options: ["1957", "1967", "1993", "2002"],
-            correct: 2,
-            category: "Geopolitics"
+            id: 137,
+            category: "Geopolitics",
+            question: "What is the capital of Indonesia?",
+            options: ["Jakarta", "Surabaya", "Bandung", "Medan"],
+            correctAnswer: 0
         },
         {
-            question: "Which country has the world's youngest population?",
-            options: ["Nigeria", "Uganda", "Afghanistan", "Angola"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 138,
+            category: "Geopolitics",
+            question: "Which country was the last to abolish slavery?",
+            options: ["United States", "Brazil", "Mauritania", "Saudi Arabia"],
+            correctAnswer: 2
         },
         {
-            question: "What is the capital of Saudi Arabia?",
-            options: ["Jeddah", "Riyadh", "Mecca", "Medina"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 139,
+            category: "Geopolitics",
+            question: "What is the largest landlocked country?",
+            options: ["Mongolia", "Kazakhstan", "Chad", "Bolivia"],
+            correctAnswer: 1
         },
         {
-            question: "Which country is the largest producer of natural gas?",
-            options: ["Russia", "United States", "Qatar", "Iran"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 140,
+            category: "Geopolitics",
+            question: "Which country has the most borders with other countries?",
+            options: ["Russia", "China", "Brazil", "Germany"],
+            correctAnswer: 1
         },
         {
-            question: "What is the currency of China?",
-            options: ["Yuan", "Yen", "Won", "Ringgit"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the highest life expectancy?",
-            options: ["Japan", "Switzerland", "Singapore", "Hong Kong"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Bangladesh?",
-            options: ["Chittagong", "Dhaka", "Khulna", "Sylhet"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest fishing industry?",
-            options: ["Japan", "China", "Indonesia", "India"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "What year did South Africa end apartheid?",
-            options: ["1990", "1991", "1992", "1994"],
-            correct: 3,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest railway network?",
-            options: ["United States", "China", "Russia", "India"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
+            id: 141,
+            category: "Geopolitics",
             question: "What is the capital of Vietnam?",
-            options: ["Ho Chi Minh City", "Hanoi", "Da Nang", "Hai Phong"],
-            correct: 1,
-            category: "Geopolitics"
+            options: ["Ho Chi Minh City", "Hanoi", "Da Nang", "Haiphong"],
+            correctAnswer: 1
         },
         {
-            question: "Which country has the most UNESCO World Heritage Sites?",
-            options: ["China", "Italy", "Spain", "France"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 142,
+            category: "Geopolitics",
+            question: "Which country was the first to give women the right to vote in national elections?",
+            options: ["Finland", "Norway", "New Zealand", "Australia"],
+            correctAnswer: 2
         },
         {
-            question: "What is the currency of Mexico?",
-            options: ["Peso", "Dollar", "Real", "Bolivar"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 143,
+            category: "Geopolitics",
+            question: "What is the smallest country in Africa?",
+            options: ["Gambia", "Djibouti", "Seychelles", "São Tomé and Príncipe"],
+            correctAnswer: 2
         },
         {
-            question: "Which country has the world's largest Muslim population?",
-            options: ["Indonesia", "Pakistan", "India", "Bangladesh"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 144,
+            category: "Geopolitics",
+            question: "Which country has the highest percentage of forest area?",
+            options: ["Finland", "Suriname", "Brazil", "Russia"],
+            correctAnswer: 1
         },
         {
-            question: "What is the capital of Ethiopia?",
-            options: ["Addis Ababa", "Dire Dawa", "Gondar", "Mekelle"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest foreign exchange reserves?",
-            options: ["China", "Japan", "Switzerland", "United States"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "What year did the Korean War end?",
-            options: ["1950", "1951", "1952", "1953"],
-            correct: 3,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the most border countries?",
-            options: ["China", "Russia", "Brazil", "Germany"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Peru?",
-            options: ["Lima", "Cuzco", "Arequipa", "Trujillo"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country is the largest producer of wheat?",
-            options: ["United States", "Russia", "China", "India"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the currency of South Africa?",
-            options: ["Rand", "Krugerrand", "Shilling", "Pound"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest nuclear arsenal?",
-            options: ["United States", "Russia", "China", "France"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Morocco?",
-            options: ["Casablanca", "Rabat", "Marrakesh", "Fes"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country is the largest producer of cocoa?",
-            options: ["Ghana", "Ivory Coast", "Nigeria", "Cameroon"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "What year did World War I end?",
-            options: ["1916", "1917", "1918", "1919"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's highest inflation rate?",
-            options: ["Venezuela", "Zimbabwe", "Argentina", "Turkey"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Colombia?",
-            options: ["Medellín", "Cali", "Bogotá", "Barranquilla"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest coal reserves?",
-            options: ["United States", "Russia", "China", "Australia"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the currency of Turkey?",
-            options: ["Lira", "Dinar", "Rial", "Pound"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's highest military spending?",
-            options: ["United States", "China", "Russia", "India"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
+            id: 145,
+            category: "Geopolitics",
             question: "What is the capital of Kenya?",
             options: ["Mombasa", "Nairobi", "Kisumu", "Nakuru"],
-            correct: 1,
-            category: "Geopolitics"
+            correctAnswer: 1
         },
         {
-            question: "Which country is the largest producer of rice?",
-            options: ["Vietnam", "India", "China", "Thailand"],
-            correct: 2,
-            category: "Geopolitics"
+            id: 146,
+            category: "Geopolitics",
+            question: "Which country has the most UNESCO World Heritage Sites?",
+            options: ["Italy", "China", "Spain", "France"],
+            correctAnswer: 0
         },
         {
-            question: "What year did the Vietnam War end?",
-            options: ["1973", "1974", "1975", "1976"],
-            correct: 2,
-            category: "Geopolitics"
+            id: 147,
+            category: "Geopolitics",
+            question: "What is the capital of Peru?",
+            options: ["Lima", "Cusco", "Arequipa", "Trujillo"],
+            correctAnswer: 0
         },
         {
-            question: "Which country has the world's largest stock exchange?",
-            options: ["NYSE (USA)", "NASDAQ (USA)", "Shanghai (China)", "Tokyo (Japan)"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 148,
+            category: "Geopolitics",
+            question: "Which country was the first to have a female president?",
+            options: ["Sri Lanka", "India", "Argentina", "Iceland"],
+            correctAnswer: 3
         },
         {
-            question: "What is the capital of Chile?",
-            options: ["Santiago", "Valparaíso", "Concepción", "Antofagasta"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 149,
+            category: "Geopolitics",
+            question: "What is the largest country without a river?",
+            options: ["Saudi Arabia", "Kuwait", "Oman", "United Arab Emirates"],
+            correctAnswer: 0
         },
         {
-            question: "Which country is the largest producer of soybeans?",
-            options: ["United States", "Brazil", "Argentina", "China"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 150,
+            category: "Geopolitics",
+            question: "Which country has the most time zones?",
+            options: ["Russia", "United States", "France", "United Kingdom"],
+            correctAnswer: 2
         },
         {
-            question: "What is the currency of Egypt?",
-            options: ["Dinar", "Pound", "Rial", "Dirham"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 151,
+            category: "Geopolitics",
+            question: "What is the capital of Bangladesh?",
+            options: ["Chittagong", "Dhaka", "Khulna", "Rajshahi"],
+            correctAnswer: 1
         },
         {
-            question: "Which country has the world's largest pension fund?",
-            options: ["United States", "Japan", "Norway", "China"],
-            correct: 2,
-            category: "Geopolitics"
+            id: 152,
+            category: "Geopolitics",
+            question: "Which country was the first to legalize same-sex marriage?",
+            options: ["Netherlands", "Canada", "Spain", "South Africa"],
+            correctAnswer: 0
         },
         {
+            id: 153,
+            category: "Geopolitics",
+            question: "What is the largest island in the Mediterranean Sea?",
+            options: ["Sicily", "Sardinia", "Cyprus", "Crete"],
+            correctAnswer: 0
+        },
+        {
+            id: 154,
+            category: "Geopolitics",
+            question: "Which country has the highest life expectancy?",
+            options: ["Japan", "Switzerland", "Singapore", "Australia"],
+            correctAnswer: 0
+        },
+        {
+            id: 155,
+            category: "Geopolitics",
+            question: "What is the capital of Thailand?",
+            options: ["Bangkok", "Chiang Mai", "Phuket", "Pattaya"],
+            correctAnswer: 0
+        },
+        {
+            id: 156,
+            category: "Geopolitics",
+            question: "Which country has the most pyramids?",
+            options: ["Egypt", "Sudan", "Mexico", "Peru"],
+            correctAnswer: 1
+        },
+        {
+            id: 157,
+            category: "Geopolitics",
+            question: "What is the capital of Ukraine?",
+            options: ["Kyiv", "Kharkiv", "Odessa", "Lviv"],
+            correctAnswer: 0
+        },
+        {
+            id: 158,
+            category: "Geopolitics",
+            question: "Which country is the world's largest exporter of coffee?",
+            options: ["Colombia", "Brazil", "Vietnam", "Ethiopia"],
+            correctAnswer: 1
+        },
+        {
+            id: 159,
+            category: "Geopolitics",
+            question: "What is the most populous landlocked country?",
+            options: ["Ethiopia", "Uganda", "Kazakhstan", "Mongolia"],
+            correctAnswer: 0
+        },
+        {
+            id: 160,
+            category: "Geopolitics",
+            question: "Which country has the highest literacy rate?",
+            options: ["Finland", "Norway", "Canada", "South Korea"],
+            correctAnswer: 0
+        },
+        {
+            id: 161,
+            category: "Geopolitics",
+            question: "What is the capital of Poland?",
+            options: ["Kraków", "Warsaw", "Łódź", "Wrocław"],
+            correctAnswer: 1
+        },
+        {
+            id: 162,
+            category: "Geopolitics",
+            question: "Which country was the first to abolish the death penalty?",
+            options: ["Venezuela", "Portugal", "Canada", "Norway"],
+            correctAnswer: 0
+        },
+        {
+            id: 163,
+            category: "Geopolitics",
+            question: "What is the largest country in Central America?",
+            options: ["Guatemala", "Honduras", "Nicaragua", "Panama"],
+            correctAnswer: 2
+        },
+        {
+            id: 164,
+            category: "Geopolitics",
+            question: "Which country has the most freshwater resources?",
+            options: ["Russia", "Brazil", "Canada", "United States"],
+            correctAnswer: 1
+        },
+        {
+            id: 165,
+            category: "Geopolitics",
+            question: "What is the capital of Morocco?",
+            options: ["Casablanca", "Rabat", "Marrakesh", "Fes"],
+            correctAnswer: 1
+        },
+        {
+            id: 166,
+            category: "Geopolitics",
+            question: "Which country has the most official national parks?",
+            options: ["United States", "Australia", "Canada", "China"],
+            correctAnswer: 0
+        },
+        {
+            id: 167,
+            category: "Geopolitics",
+            question: "What is the capital of the Philippines?",
+            options: ["Manila", "Quezon City", "Cebu City", "Davao City"],
+            correctAnswer: 0
+        },
+        {
+            id: 168,
+            category: "Geopolitics",
+            question: "Which country was the first to give women the right to stand for parliament?",
+            options: ["New Zealand", "Australia", "Finland", "Norway"],
+            correctAnswer: 1
+        },
+        {
+            id: 169,
+            category: "Geopolitics",
+            question: "What is the most sparsely populated country?",
+            options: ["Mongolia", "Namibia", "Australia", "Iceland"],
+            correctAnswer: 0
+        },
+        {
+            id: 170,
+            category: "Geopolitics",
+            question: "Which country has the highest median age?",
+            options: ["Japan", "Germany", "Italy", "Monaco"],
+            correctAnswer: 0
+        },
+        {
+            id: 171,
+            category: "Geopolitics",
+            question: "What is the capital of Colombia?",
+            options: ["Medellín", "Bogotá", "Cali", "Barranquilla"],
+            correctAnswer: 1
+        },
+        {
+            id: 172,
+            category: "Geopolitics",
+            question: "Which country has the most tornadoes per year?",
+            options: ["United States", "Canada", "Bangladesh", "Argentina"],
+            correctAnswer: 0
+        },
+        {
+            id: 173,
+            category: "Geopolitics",
+            question: "What is the largest country in the Caribbean?",
+            options: ["Cuba", "Dominican Republic", "Jamaica", "Haiti"],
+            correctAnswer: 0
+        },
+        {
+            id: 174,
+            category: "Geopolitics",
+            question: "Which country has the most earthquakes?",
+            options: ["Japan", "Indonesia", "Chile", "United States"],
+            correctAnswer: 1
+        },
+        {
+            id: 175,
+            category: "Geopolitics",
             question: "What is the capital of Malaysia?",
             options: ["Kuala Lumpur", "Putrajaya", "Penang", "Johor Bahru"],
-            correct: 1,
-            category: "Geopolitics"
+            correctAnswer: 0
         },
         {
-            question: "Which country is the largest producer of palm oil?",
-            options: ["Indonesia", "Malaysia", "Thailand", "Nigeria"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 176,
+            category: "Geopolitics",
+            question: "Which country has the longest railway network?",
+            options: ["United States", "Russia", "China", "India"],
+            correctAnswer: 0
         },
         {
-            question: "What year did the Cold War officially end?",
-            options: ["1989", "1990", "1991", "1992"],
-            correct: 2,
-            category: "Geopolitics"
+            id: 177,
+            category: "Geopolitics",
+            question: "What is the capital of Chile?",
+            options: ["Santiago", "Valparaíso", "Concepción", "Antofagasta"],
+            correctAnswer: 0
         },
         {
-            question: "Which country has the world's largest sovereign wealth fund?",
-            options: ["Norway", "China", "UAE", "Saudi Arabia"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 178,
+            category: "Geopolitics",
+            question: "Which country was the first to ban plastic bags?",
+            options: ["Bangladesh", "Rwanda", "Kenya", "China"],
+            correctAnswer: 0
         },
         {
-            question: "What is the capital of the Philippines?",
-            options: ["Manila", "Quezon City", "Cebu", "Davao"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 179,
+            category: "Geopolitics",
+            question: "What is the largest country in the Middle East?",
+            options: ["Saudi Arabia", "Iran", "Egypt", "Turkey"],
+            correctAnswer: 0
         },
         {
-            question: "Which country is the largest producer of tea?",
-            options: ["India", "China", "Kenya", "Sri Lanka"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 180,
+            category: "Geopolitics",
+            question: "Which country has the highest percentage of women in parliament?",
+            options: ["Rwanda", "Sweden", "Finland", "Norway"],
+            correctAnswer: 0
         },
         {
-            question: "What is the currency of South Korea?",
-            options: ["Won", "Yen", "Yuan", "Dollar"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 181,
+            category: "Geopolitics",
+            question: "What is the capital of Ethiopia?",
+            options: ["Addis Ababa", "Dire Dawa", "Mekelle", "Bahir Dar"],
+            correctAnswer: 0
         },
         {
-            question: "Which country has the world's largest middle class?",
-            options: ["United States", "China", "India", "Japan"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 182,
+            category: "Geopolitics",
+            question: "Which country has the most lakes?",
+            options: ["Canada", "Finland", "Sweden", "Russia"],
+            correctAnswer: 0
         },
         {
-            question: "What is the capital of Algeria?",
-            options: ["Algiers", "Oran", "Constantine", "Annaba"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 183,
+            category: "Geopolitics",
+            question: "What is the largest country in the Balkans?",
+            options: ["Serbia", "Romania", "Greece", "Bulgaria"],
+            correctAnswer: 1
         },
         {
-            question: "Which country is the largest producer of cotton?",
-            options: ["United States", "China", "India", "Pakistan"],
-            correct: 2,
-            category: "Geopolitics"
+            id: 184,
+            category: "Geopolitics",
+            question: "Which country has the highest minimum wage?",
+            options: ["Australia", "Luxembourg", "Switzerland", "Denmark"],
+            correctAnswer: 0
         },
         {
-            question: "What year did the Iraq War begin?",
-            options: ["2001", "2002", "2003", "2004"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest port?",
-            options: ["Shanghai (China)", "Singapore", "Rotterdam (Netherlands)", "Shenzhen (China)"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
+            id: 185,
+            category: "Geopolitics",
             question: "What is the capital of Iraq?",
-            options: ["Basra", "Mosul", "Baghdad", "Erbil"],
-            correct: 2,
-            category: "Geopolitics"
+            options: ["Baghdad", "Basra", "Mosul", "Erbil"],
+            correctAnswer: 0
         },
         {
-            question: "Which country is the largest producer of sugar?",
-            options: ["Brazil", "India", "Thailand", "China"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 186,
+            category: "Geopolitics",
+            question: "Which country has the most billionaires?",
+            options: ["United States", "China", "Germany", "India"],
+            correctAnswer: 0
         },
         {
-            question: "What is the currency of Pakistan?",
-            options: ["Rupee", "Taka", "Rial", "Afghani"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 187,
+            category: "Geopolitics",
+            question: "What is the capital of Afghanistan?",
+            options: ["Kabul", "Kandahar", "Herat", "Mazar-i-Sharif"],
+            correctAnswer: 0
         },
         {
-            question: "Which country has the world's largest diaspora?",
-            options: ["India", "Mexico", "China", "Philippines"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 188,
+            category: "Geopolitics",
+            question: "Which country was the first to implement a carbon tax?",
+            options: ["Finland", "Sweden", "Norway", "Denmark"],
+            correctAnswer: 0
         },
         {
-            question: "What is the capital of Ghana?",
-            options: ["Accra", "Kumasi", "Tamale", "Sekondi-Takoradi"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 189,
+            category: "Geopolitics",
+            question: "What is the largest country in Oceania?",
+            options: ["Australia", "Papua New Guinea", "New Zealand", "Fiji"],
+            correctAnswer: 0
         },
         {
-            question: "Which country is the largest producer of tobacco?",
-            options: ["China", "United States", "Brazil", "India"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 190,
+            category: "Geopolitics",
+            question: "Which country has the highest happiness index?",
+            options: ["Finland", "Denmark", "Switzerland", "Iceland"],
+            correctAnswer: 0
         },
         {
-            question: "What year did the European Union introduce the Euro?",
-            options: ["1999", "2000", "2001", "2002"],
-            correct: 3,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest e-commerce market?",
-            options: ["United States", "China", "Japan", "United Kingdom"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Myanmar?",
-            options: ["Yangon", "Naypyidaw", "Mandalay", "Bago"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country is the largest producer of rubber?",
-            options: ["Thailand", "Indonesia", "Vietnam", "Malaysia"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the currency of Argentina?",
-            options: ["Peso", "Real", "Bolivar", "Sol"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest tech industry?",
-            options: ["United States", "China", "Japan", "South Korea"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Cuba?",
-            options: ["Havana", "Santiago de Cuba", "Camagüey", "Holguín"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country is the largest producer of grapes?",
-            options: ["Italy", "France", "China", "United States"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        {
-            question: "What year did NATO form?",
-            options: ["1947", "1949", "1951", "1953"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest pharmaceutical industry?",
-            options: ["United States", "Germany", "Switzerland", "Japan"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
+            id: 191,
+            category: "Geopolitics",
             question: "What is the capital of Venezuela?",
             options: ["Caracas", "Maracaibo", "Valencia", "Barquisimeto"],
-            correct: 0,
-            category: "Geopolitics"
+            correctAnswer: 0
         },
         {
-            question: "Which country is the largest producer of corn?",
-            options: ["United States", "China", "Brazil", "Argentina"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 192,
+            category: "Geopolitics",
+            question: "Which country has the most World Cup wins in soccer?",
+            options: ["Brazil", "Germany", "Italy", "Argentina"],
+            correctAnswer: 0
         },
         {
-            question: "What is the currency of Thailand?",
-            options: ["Baht", "Ringgit", "Dong", "Rupiah"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 193,
+            category: "Geopolitics",
+            question: "What is the largest country in Southeast Asia?",
+            options: ["Indonesia", "Thailand", "Vietnam", "Myanmar"],
+            correctAnswer: 0
         },
         {
-            question: "Which country has the world's largest automotive industry?",
-            options: ["United States", "Japan", "Germany", "China"],
-            correct: 3,
-            category: "Geopolitics"
+            id: 194,
+            category: "Geopolitics",
+            question: "Which country has the most Olympic gold medals?",
+            options: ["United States", "Russia", "China", "Great Britain"],
+            correctAnswer: 0
         },
         {
-            question: "What is the capital of Uzbekistan?",
-            options: ["Samarkand", "Tashkent", "Bukhara", "Khiva"],
-            correct: 1,
-            category: "Geopolitics"
+            id: 195,
+            category: "Geopolitics",
+            question: "What is the capital of Algeria?",
+            options: ["Algiers", "Oran", "Constantine", "Annaba"],
+            correctAnswer: 0
         },
         {
-            question: "Which country is the largest producer of potatoes?",
-            options: ["China", "India", "Russia", "United States"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 196,
+            category: "Geopolitics",
+            question: "Which country has the most airports?",
+            options: ["United States", "Brazil", "Russia", "China"],
+            correctAnswer: 0
         },
         {
-            question: "What year did the United Nations form?",
-            options: ["1944", "1945", "1946", "1947"],
-            correct: 1,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest wine production?",
-            options: ["Italy", "France", "Spain", "United States"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
+            id: 197,
+            category: "Geopolitics",
             question: "What is the capital of Nepal?",
             options: ["Kathmandu", "Pokhara", "Lalitpur", "Bharatpur"],
-            correct: 0,
-            category: "Geopolitics"
+            correctAnswer: 0
         },
         {
-            question: "Which country is the largest producer of oranges?",
-            options: ["Brazil", "United States", "China", "India"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 198,
+            category: "Geopolitics",
+            question: "Which country was the first to reach the South Pole?",
+            options: ["Norway", "United Kingdom", "United States", "Australia"],
+            correctAnswer: 0
         },
         {
-            question: "What is the currency of Indonesia?",
-            options: ["Rupiah", "Ringgit", "Baht", "Dollar"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 199,
+            category: "Geopolitics",
+            question: "What is the largest country in Central Asia?",
+            options: ["Kazakhstan", "Uzbekistan", "Turkmenistan", "Kyrgyzstan"],
+            correctAnswer: 0
         },
         {
-            question: "Which country has the world's largest renewable energy capacity?",
-            options: ["China", "United States", "Germany", "India"],
-            correct: 0,
-            category: "Geopolitics"
+            id: 200,
+            category: "Geopolitics",
+            question: "Which country has the most Nobel Prize winners?",
+            options: ["United States", "United Kingdom", "Germany", "France"],
+            correctAnswer: 0
         },
-        {
-            question: "What is the capital of Angola?",
-            options: ["Luanda", "Huambo", "Lobito", "Benguela"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country is the largest producer of tomatoes?",
-            options: ["China", "India", "United States", "Turkey"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "What year did the Kyoto Protocol come into effect?",
-            options: ["1997", "2000", "2005", "2010"],
-            correct: 2,
-            category: "Geopolitics"
-        },
-        {
-            question: "Which country has the world's largest shipping fleet?",
-            options: ["Greece", "Japan", "China", "United States"],
-            correct: 0,
-            category: "Geopolitics"
-        },
-        {
-            question: "What is the capital of Syria?",
-            options: ["Damascus", "Aleppo", "Homs", "Latakia"],
-            correct: 0,
-            category: "Geopolitics"
-        }
-        // Total: 100 Geopolitics questions
-    ],
-    
-    // Current Affairs Questions (100 total)
-    currentAffairs: [
-        // Original 10 questions remain...
-        {
-            question: "As of 2023, which country has the world's largest economy?",
-            options: ["United States", "China", "Japan", "Germany"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        // ... original 9 questions
         
-        // Additional 90 questions:
+        // ========== CURRENT AFFAIRS (100 Questions) ==========
         {
-            question: "Which country won the 2023 Cricket World Cup?",
-            options: ["India", "Australia", "England", "New Zealand"],
-            correct: 1,
-            category: "Current Affairs"
+            id: 201,
+            category: "Current Affairs",
+            question: "As of 2023, which country has the world's largest population?",
+            options: ["India", "United States", "China", "Indonesia"],
+            correctAnswer: 2
         },
         {
+            id: 202,
+            category: "Current Affairs",
+            question: "Which cryptocurrency was the first to be created?",
+            options: ["Ethereum", "Bitcoin", "Dogecoin", "Ripple"],
+            correctAnswer: 1
+        },
+        {
+            id: 203,
+            category: "Current Affairs",
+            question: "Which global event caused widespread lockdowns in 2020?",
+            options: ["Climate Change Summit", "COVID-19 Pandemic", "Brexit", "US Presidential Election"],
+            correctAnswer: 1
+        },
+        {
+            id: 204,
+            category: "Current Affairs",
+            question: "Which company became the first to reach a $3 trillion market valuation in 2022?",
+            options: ["Microsoft", "Amazon", "Apple", "Google"],
+            correctAnswer: 2
+        },
+        {
+            id: 205,
+            category: "Current Affairs",
+            question: "Which country hosted the 2022 FIFA World Cup?",
+            options: ["Qatar", "Brazil", "Russia", "South Africa"],
+            correctAnswer: 0
+        },
+        {
+            id: 206,
+            category: "Current Affairs",
             question: "Who won the 2023 Nobel Peace Prize?",
-            options: ["Maria Ressa", "Narges Mohammadi", "Ales Bialiatski", "Human Rights Watch"],
-            correct: 1,
-            category: "Current Affairs"
+            options: ["Malala Yousafzai", "Narges Mohammadi", "Maria Ressa", "Dmitry Muratov"],
+            correctAnswer: 1
         },
         {
-            question: "Which company launched Threads in 2023 as a competitor to Twitter?",
-            options: ["Google", "Meta", "Microsoft", "Apple"],
-            correct: 1,
-            category: "Current Affairs"
+            id: 207,
+            category: "Current Affairs",
+            question: "Which country launched the Artemis program to return humans to the Moon?",
+            options: ["United States", "China", "Russia", "European Union"],
+            correctAnswer: 0
         },
         {
-            question: "Which country experienced devastating earthquakes in February 2023?",
-            options: ["Turkey", "Italy", "Japan", "Chile"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 208,
+            category: "Current Affairs",
+            question: "What major climate agreement was adopted in 2015?",
+            options: ["Kyoto Protocol", "Paris Agreement", "Copenhagen Accord", "Montreal Protocol"],
+            correctAnswer: 1
         },
         {
-            question: "Who became King of the United Kingdom in 2022?",
-            options: ["Prince Charles", "Prince William", "Prince Harry", "Prince Andrew"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 209,
+            category: "Current Affairs",
+            question: "Which social media platform was renamed 'X' in 2023?",
+            options: ["Facebook", "Twitter", "Instagram", "TikTok"],
+            correctAnswer: 1
         },
         {
-            question: "Which country hosted the 2023 G20 Summit?",
-            options: ["Indonesia", "India", "Brazil", "Italy"],
-            correct: 1,
-            category: "Current Affairs"
+            id: 210,
+            category: "Current Affairs",
+            question: "Who is the current Secretary-General of the United Nations?",
+            options: ["Ban Ki-moon", "António Guterres", "Kofi Annan", "Boutros Boutros-Ghali"],
+            correctAnswer: 1
         },
         {
-            question: "What was the name of the hurricane that hit Florida in 2022?",
-            options: ["Hurricane Ian", "Hurricane Michael", "Hurricane Irma", "Hurricane Katrina"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 211,
+            category: "Current Affairs",
+            question: "Which country experienced massive wildfires in 2023, described as the worst in its history?",
+            options: ["Greece", "Canada", "Australia", "Brazil"],
+            correctAnswer: 1
         },
         {
-            question: "Which tech company announced major layoffs of 10,000 employees in early 2023?",
-            options: ["Amazon", "Google", "Microsoft", "Meta"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 212,
+            category: "Current Affairs",
+            question: "What is the name of the AI chatbot released by OpenAI in November 2022?",
+            options: ["Bard", "Claude", "ChatGPT", "Copilot"],
+            correctAnswer: 2
         },
         {
-            question: "Which country legalized same-sex marriage in 2023?",
-            options: ["Greece", "Estonia", "Slovakia", "Latvia"],
-            correct: 1,
-            category: "Current Affairs"
+            id: 213,
+            category: "Current Affairs",
+            question: "Which country joined NATO in 2023?",
+            options: ["Sweden", "Finland", "Ukraine", "Georgia"],
+            correctAnswer: 1
         },
         {
-            question: "Who won the 2023 US Open Men's Singles tennis title?",
-            options: ["Carlos Alcaraz", "Novak Djokovic", "Daniil Medvedev", "Rafael Nadal"],
-            correct: 1,
-            category: "Current Affairs"
+            id: 214,
+            category: "Current Affairs",
+            question: "Who won the 2023 US Open Men's Singles tennis championship?",
+            options: ["Novak Djokovic", "Carlos Alcaraz", "Daniil Medvedev", "Rafael Nadal"],
+            correctAnswer: 1
         },
         {
-            question: "Which country launched its first domestically built aircraft carrier in 2022?",
-            options: ["India", "China", "South Korea", "Japan"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 215,
+            category: "Current Affairs",
+            question: "Which tech company announced major layoffs exceeding 10,000 employees in early 2023?",
+            options: ["Amazon", "Google", "Meta", "Microsoft"],
+            correctAnswer: 2
         },
         {
-            question: "What was the theme of the 2023 World Environment Day?",
-            options: ["Beat Plastic Pollution", "Ecosystem Restoration", "Only One Earth", "Solutions to Plastic Pollution"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 216,
+            category: "Current Affairs",
+            question: "What was the main cause of the 2023 global banking crisis?",
+            options: ["Cryptocurrency collapse", "COVID-19 aftermath", "Silicon Valley Bank failure", "Chinese real estate crisis"],
+            correctAnswer: 2
         },
         {
-            question: "Which country experienced a political crisis in 2023 with protests against pension reforms?",
-            options: ["Germany", "France", "Italy", "Spain"],
-            correct: 1,
-            category: "Current Affairs"
+            id: 217,
+            category: "Current Affairs",
+            question: "Which country launched its first mission to study the Sun in 2023?",
+            options: ["India", "United States", "China", "European Union"],
+            correctAnswer: 0
         },
         {
+            id: 218,
+            category: "Current Affairs",
+            question: "Who became the King of the United Kingdom in 2022?",
+            options: ["Prince William", "Prince Charles", "Prince Harry", "Prince Andrew"],
+            correctAnswer: 1
+        },
+        {
+            id: 219,
+            category: "Current Affairs",
+            question: "Which country legalized same-sex marriage in a 2023 referendum?",
+            options: ["Slovenia", "Cuba", "Chile", "Switzerland"],
+            correctAnswer: 2
+        },
+        {
+            id: 220,
+            category: "Current Affairs",
+            question: "What major sporting event was held in Hangzhou, China in 2023?",
+            options: ["Summer Olympics", "Winter Olympics", "Asian Games", "Commonwealth Games"],
+            correctAnswer: 2
+        },
+        {
+            id: 221,
+            category: "Current Affairs",
+            question: "Which streaming service had the most Oscar nominations in 2023?",
+            options: ["Netflix", "Apple TV+", "Amazon Prime", "Disney+"],
+            correctAnswer: 0
+        },
+        {
+            id: 222,
+            category: "Current Affairs",
+            question: "Who won the 2023 Formula 1 World Championship?",
+            options: ["Lewis Hamilton", "Max Verstappen", "Charles Leclerc", "George Russell"],
+            correctAnswer: 1
+        },
+        {
+            id: 223,
+            category: "Current Affairs",
+            question: "Which country experienced a massive earthquake in February 2023?",
+            options: ["Turkey", "Japan", "Mexico", "Italy"],
+            correctAnswer: 0
+        },
+        {
+            id: 224,
+            category: "Current Affairs",
+            question: "What was the theme of World Environment Day 2023?",
+            options: ["Beat Plastic Pollution", "Only One Earth", "Ecosystem Restoration", "Solutions to Plastic Pollution"],
+            correctAnswer: 3
+        },
+        {
+            id: 225,
+            category: "Current Affairs",
+            question: "Which company released Threads, a Twitter competitor, in 2023?",
+            options: ["Google", "Meta", "Microsoft", "Snap"],
+            correctAnswer: 1
+        },
+        {
+            id: 226,
+            category: "Current Affairs",
             question: "Who won the 2023 Women's World Cup in soccer?",
             options: ["United States", "Spain", "England", "Germany"],
-            correct: 1,
-            category: "Current Affairs"
+            correctAnswer: 1
         },
         {
-            question: "Which company became the first to reach a $3 trillion market cap in 2023?",
-            options: ["Microsoft", "Apple", "Saudi Aramco", "Google"],
-            correct: 1,
-            category: "Current Affairs"
+            id: 227,
+            category: "Current Affairs",
+            question: "Which country launched the Chandrayaan-3 moon mission in 2023?",
+            options: ["China", "India", "United States", "Russia"],
+            correctAnswer: 1
         },
         {
-            question: "Which country changed its name to Türkiye in 2022?",
-            options: ["Turkey", "Czech Republic", "Swaziland", "Holland"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 228,
+            category: "Current Affairs",
+            question: "What was the inflation rate target set by most central banks in 2023?",
+            options: ["1%", "2%", "3%", "4%"],
+            correctAnswer: 1
         },
         {
-            question: "Who won the 2023 Academy Award for Best Picture?",
-            options: ["Everything Everywhere All at Once", "The Fabelmans", "All Quiet on the Western Front", "Top Gun: Maverick"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 229,
+            category: "Current Affairs",
+            question: "Which social media app was banned in several countries over data privacy concerns in 2023?",
+            options: ["TikTok", "Instagram", "Snapchat", "WhatsApp"],
+            correctAnswer: 0
         },
         {
-            question: "Which country experienced severe flooding in Libya in September 2023?",
-            options: ["Libya", "Morocco", "Algeria", "Tunisia"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the COVID-19 variant that dominated in late 2022?",
-            options: ["Delta", "Omicron", "Alpha", "Gamma"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country successfully tested a hypersonic missile in 2023?",
-            options: ["North Korea", "Russia", "China", "United States"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "Who became the new Prime Minister of the UK in 2022?",
-            options: ["Rishi Sunak", "Liz Truss", "Boris Johnson", "Jeremy Hunt"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which social media platform was rebranded as 'X' in 2023?",
-            options: ["Facebook", "Twitter", "Instagram", "TikTok"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country won the 2023 Asian Games gold medal tally?",
-            options: ["China", "Japan", "South Korea", "India"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the inflation rate in the US that peaked in 2022?",
-            options: ["6%", "7%", "8%", "9%"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country launched the 'Artemis' moon mission in 2022?",
-            options: ["United States", "China", "Russia", "India"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "Who won the 2023 Ballon d'Or for best football player?",
-            options: ["Lionel Messi", "Kylian Mbappé", "Erling Haaland", "Karim Benzema"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country experienced a banking crisis with Silicon Valley Bank in 2023?",
-            options: ["United Kingdom", "United States", "Switzerland", "Germany"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the volcano that erupted in Iceland in 2023?",
-            options: ["Eyjafjallajökull", "Fagradalsfjall", "Katla", "Hekla"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country won the 2023 Rugby World Cup?",
-            options: ["South Africa", "New Zealand", "France", "Ireland"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main agenda of the 2023 UN Climate Change Conference (COP28)?",
-            options: ["Climate Finance", "Loss and Damage Fund", "Carbon Markets", "Renewable Energy"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which company launched the AI chatbot 'Bard' in 2023?",
-            options: ["Microsoft", "Google", "OpenAI", "Meta"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country experienced a major heatwave in 2023 with temperatures reaching 50°C?",
-            options: ["India", "China", "United States", "Australia"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
+            id: 230,
+            category: "Current Affairs",
             question: "Who won the 2023 Nobel Prize in Literature?",
-            options: ["Annie Ernaux", "Jon Fosse", "Louise Glück", "Abdulrazak Gurnah"],
-            correct: 1,
-            category: "Current Affairs"
+            options: ["Annie Ernaux", "Jon Fosse", "Abdulrazak Gurnah", "Louise Glück"],
+            correctAnswer: 1
         },
         {
-            question: "Which country launched a digital currency in 2023?",
-            options: ["China", "United States", "European Union", "Japan"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 231,
+            category: "Current Affairs",
+            question: "Which country experienced unprecedented heatwaves in 2023, breaking temperature records?",
+            options: ["India", "United States", "China", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "What was the name of the Hollywood actors' strike in 2023?",
-            options: ["SAG-AFTRA strike", "WGA strike", "DGA strike", "IATSE strike"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 232,
+            category: "Current Affairs",
+            question: "What major trade agreement was signed by Pacific nations in 2023?",
+            options: ["CPTPP", "RCEP", "USMCA", "MERCOSUR"],
+            correctAnswer: 1
         },
         {
-            question: "Which country won the 2023 Davis Cup in tennis?",
-            options: ["Italy", "Canada", "Australia", "Spain"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main cause of the 2023 Canadian wildfires?",
-            options: ["Lightning strikes", "Human activity", "Climate change", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country launched a mission to study asteroids in 2023?",
-            options: ["NASA (USA)", "ISRO (India)", "JAXA (Japan)", "CNSA (China)"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
+            id: 233,
+            category: "Current Affairs",
             question: "Who became the President of Brazil in 2023?",
             options: ["Jair Bolsonaro", "Luiz Inácio Lula da Silva", "Fernando Haddad", "Ciro Gomes"],
-            correct: 1,
-            category: "Current Affairs"
+            correctAnswer: 1
         },
         {
-            question: "Which social media app was banned in some countries in 2023 over security concerns?",
-            options: ["TikTok", "Instagram", "Facebook", "Twitter"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 234,
+            category: "Current Affairs",
+            question: "Which technology company announced a $10 billion investment in AI in 2023?",
+            options: ["Microsoft", "Google", "Amazon", "Meta"],
+            correctAnswer: 0
         },
         {
-            question: "What was the death toll in the 2023 Morocco earthquake?",
-            options: ["Over 1,000", "Over 2,000", "Over 3,000", "Over 4,000"],
-            correct: 2,
-            category: "Current Affairs"
+            id: 235,
+            category: "Current Affairs",
+            question: "What was the global theme for Earth Day 2023?",
+            options: ["Invest in Our Planet", "Restore Our Earth", "Protect Our Species", "Climate Action"],
+            correctAnswer: 0
         },
         {
-            question: "Which company reached a settlement in the opioid crisis in 2023?",
-            options: ["Johnson & Johnson", "Pfizer", "Walgreens", "CVS"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 236,
+            category: "Current Affairs",
+            question: "Which country approved the first vaccine for malaria in 2023?",
+            options: ["United States", "European Union", "World Health Organization", "African Union"],
+            correctAnswer: 2
         },
         {
-            question: "What was the name of the hurricane that hit Mexico in 2023?",
-            options: ["Hurricane Otis", "Hurricane Hilary", "Hurricane Idalia", "Hurricane Lee"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 237,
+            category: "Current Affairs",
+            question: "Who won the 2023 Academy Award for Best Picture?",
+            options: ["Everything Everywhere All at Once", "The Fabelmans", "Tár", "Women Talking"],
+            correctAnswer: 0
         },
         {
-            question: "Which country won the 2023 Women's T20 World Cup in cricket?",
-            options: ["Australia", "England", "India", "South Africa"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 238,
+            category: "Current Affairs",
+            question: "Which country launched a digital currency in 2023?",
+            options: ["China", "United States", "European Union", "India"],
+            correctAnswer: 0
         },
         {
-            question: "What was the main issue in the 2023 Hollywood writers' strike?",
-            options: ["AI in scriptwriting", "Residual payments", "Working conditions", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 239,
+            category: "Current Affairs",
+            question: "What major space telescope began operations in 2022?",
+            options: ["Hubble Space Telescope", "James Webb Space Telescope", "Chandra X-ray Observatory", "Spitzer Space Telescope"],
+            correctAnswer: 1
         },
         {
-            question: "Which country experienced a coup d'état in 2023?",
-            options: ["Niger", "Mali", "Burkina Faso", "Sudan"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 240,
+            category: "Current Affairs",
+            question: "Which country experienced severe flooding in 2023 affecting millions?",
+            options: ["Pakistan", "Bangladesh", "Nigeria", "Indonesia"],
+            correctAnswer: 0
         },
         {
-            question: "What was the name of the AI safety summit held in the UK in 2023?",
-            options: ["AI Safety Summit", "Global AI Summit", "AI Governance Forum", "Future of AI Conference"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 241,
+            category: "Current Affairs",
+            question: "Who became the Prime Minister of the United Kingdom in 2022?",
+            options: ["Boris Johnson", "Liz Truss", "Rishi Sunak", "Jeremy Hunt"],
+            correctAnswer: 2
         },
         {
+            id: 242,
+            category: "Current Affairs",
+            question: "Which company became the most valuable in the world in 2023?",
+            options: ["Apple", "Microsoft", "Saudi Aramco", "Amazon"],
+            correctAnswer: 0
+        },
+        {
+            id: 243,
+            category: "Current Affairs",
+            question: "What was the main focus of the G20 Summit in 2023?",
+            options: ["Climate Change", "Global Economy", "Digital Transformation", "Sustainable Development"],
+            correctAnswer: 3
+        },
+        {
+            id: 244,
+            category: "Current Affairs",
+            question: "Which country legalized recreational cannabis in 2023?",
+            options: ["Germany", "Thailand", "Mexico", "South Africa"],
+            correctAnswer: 0
+        },
+        {
+            id: 245,
+            category: "Current Affairs",
+            question: "Who won the 2023 Ballon d'Or for best football player?",
+            options: ["Lionel Messi", "Kylian Mbappé", "Karim Benzema", "Erling Haaland"],
+            correctAnswer: 0
+        },
+        {
+            id: 246,
+            category: "Current Affairs",
+            question: "Which country experienced a major political crisis in 2023 leading to presidential elections?",
+            options: ["Argentina", "Turkey", "Pakistan", "Nigeria"],
+            correctAnswer: 2
+        },
+        {
+            id: 247,
+            category: "Current Affairs",
+            question: "What new feature did Apple introduce in iOS 17?",
+            options: ["Interactive Widgets", "Journal App", "StandBy Mode", "All of the above"],
+            correctAnswer: 3
+        },
+        {
+            id: 248,
+            category: "Current Affairs",
+            question: "Which country hosted the COP28 climate conference in 2023?",
+            options: ["Egypt", "United Arab Emirates", "United Kingdom", "Germany"],
+            correctAnswer: 1
+        },
+        {
+            id: 249,
+            category: "Current Affairs",
+            question: "Who became the President of Kenya in 2022?",
+            options: ["Uhuru Kenyatta", "William Ruto", "Raila Odinga", "Martha Karua"],
+            correctAnswer: 1
+        },
+        {
+            id: 250,
+            category: "Current Affairs",
+            question: "Which social movement gained global attention in 2023 for climate activism?",
+            options: ["Fridays for Future", "Extinction Rebellion", "Just Stop Oil", "All of the above"],
+            correctAnswer: 3
+        },
+        {
+            id: 251,
+            category: "Current Affairs",
+            question: "What major banking merger was announced in 2023?",
+            options: ["Credit Suisse and UBS", "Deutsche Bank and Commerzbank", "Goldman Sachs and Morgan Stanley", "Bank of America and Wells Fargo"],
+            correctAnswer: 0
+        },
+        {
+            id: 252,
+            category: "Current Affairs",
             question: "Which country launched a new space station module in 2023?",
-            options: ["China", "Russia", "United States", "India"],
-            correct: 0,
-            category: "Current Affairs"
+            options: ["United States", "China", "Russia", "India"],
+            correctAnswer: 1
         },
         {
-            question: "Who won the 2023 US Open Women's Singles tennis title?",
-            options: ["Coco Gauff", "Aryna Sabalenka", "Iga Świątek", "Elena Rybakina"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 253,
+            category: "Current Affairs",
+            question: "Who won the 2023 Nobel Prize in Physics?",
+            options: ["For work on climate change", "For black hole research", "For quantum computing", "For attosecond physics"],
+            correctAnswer: 3
         },
         {
-            question: "What was the main achievement of the 2023 UN Water Conference?",
-            options: ["Water Action Agenda", "Global Water Fund", "Clean Water Initiative", "Water Security Pact"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 254,
+            category: "Current Affairs",
+            question: "Which country experienced mass protests in 2023 over pension reforms?",
+            options: ["France", "Germany", "United Kingdom", "Italy"],
+            correctAnswer: 0
         },
         {
+            id: 255,
+            category: "Current Affairs",
+            question: "What was the main topic at the World Economic Forum in Davos 2023?",
+            options: ["AI Regulation", "Climate Change", "Global Recession", "Cooperation in a Fragmented World"],
+            correctAnswer: 3
+        },
+        {
+            id: 256,
+            category: "Current Affairs",
+            question: "Which country approved lab-grown meat for sale in 2023?",
+            options: ["United States", "Singapore", "Israel", "Netherlands"],
+            correctAnswer: 0
+        },
+        {
+            id: 257,
+            category: "Current Affairs",
+            question: "Who became the CEO of Twitter in 2022?",
+            options: ["Elon Musk", "Jack Dorsey", "Parag Agrawal", "Linda Yaccarino"],
+            correctAnswer: 3
+        },
+        {
+            id: 258,
+            category: "Current Affairs",
             question: "Which country experienced a major train accident in 2023?",
-            options: ["India", "Pakistan", "Bangladesh", "Sri Lanka"],
-            correct: 0,
-            category: "Current Affairs"
+            options: ["India", "United States", "China", "Greece"],
+            correctAnswer: 0
         },
         {
-            question: "What was the name of the AI executive order signed by US President Biden in 2023?",
-            options: ["AI Safety and Security", "Responsible AI Development", "Safe, Secure, and Trustworthy AI", "AI Governance Framework"],
-            correct: 2,
-            category: "Current Affairs"
+            id: 259,
+            category: "Current Affairs",
+            question: "What major sports event will be held in Paris in 2024?",
+            options: ["Summer Olympics", "Winter Olympics", "FIFA World Cup", "UEFA European Championship"],
+            correctAnswer: 0
         },
         {
-            question: "Which country hosted the 2023 NATO Summit?",
-            options: ["Lithuania", "Poland", "Germany", "United Kingdom"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 260,
+            category: "Current Affairs",
+            question: "Which country launched a mission to Jupiter's moons in 2023?",
+            options: ["European Space Agency", "NASA", "Roscosmos", "ISRO"],
+            correctAnswer: 0
         },
         {
-            question: "What was the theme of the 2023 World Health Day?",
-            options: ["Health For All", "Our Planet, Our Health", "Building a Fairer, Healthier World", "Universal Health Coverage"],
-            correct: 1,
-            category: "Current Affairs"
+            id: 261,
+            category: "Current Affairs",
+            question: "Who won the 2023 US Presidential election?",
+            options: ["Joe Biden", "Donald Trump", "Kamala Harris", "Ron DeSantis"],
+            correctAnswer: 0
         },
         {
-            question: "Which company faced antitrust lawsuits in 2023?",
+            id: 262,
+            category: "Current Affairs",
+            question: "Which tech company faced major antitrust lawsuits in 2023?",
             options: ["Google", "Amazon", "Apple", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
+            correctAnswer: 3
         },
         {
-            question: "What was the death toll in the 2023 Türkiye-Syria earthquake?",
-            options: ["Over 20,000", "Over 40,000", "Over 60,000", "Over 80,000"],
-            correct: 2,
-            category: "Current Affairs"
+            id: 263,
+            category: "Current Affairs",
+            question: "What was the global population estimated to reach in 2023?",
+            options: ["7 billion", "8 billion", "9 billion", "10 billion"],
+            correctAnswer: 1
         },
         {
-            question: "Which country won the 2023 Tour de France?",
-            options: ["Jonas Vingegaard", "Tadej Pogačar", "Geraint Thomas", "Primož Roglič"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 264,
+            category: "Current Affairs",
+            question: "Which country experienced a major drought affecting food production in 2023?",
+            options: ["Argentina", "Australia", "Spain", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "What was the name of the pandemic preparedness agreement discussed in 2023?",
-            options: ["Pandemic Treaty", "Global Health Accord", "International Health Regulations", "WHO Framework"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 265,
+            category: "Current Affairs",
+            question: "Who became the President of Chile in 2022?",
+            options: ["Sebastián Piñera", "Gabriel Boric", "Michelle Bachelet", "José Antonio Kast"],
+            correctAnswer: 1
         },
         {
-            question: "Which country launched a digital nomad visa in 2023?",
-            options: ["Portugal", "Spain", "Italy", "Greece"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 266,
+            category: "Current Affairs",
+            question: "Which company announced a $100 billion investment in renewable energy?",
+            options: ["Saudi Aramco", "ExxonMobil", "Shell", "BP"],
+            correctAnswer: 0
         },
         {
-            question: "What was the main achievement of the 2023 G7 Summit?",
-            options: ["Ukraine support package", "Climate finance", "AI regulation", "Global tax reform"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 267,
+            category: "Current Affairs",
+            question: "What major peace agreement was signed in 2023?",
+            options: ["Israel-Saudi Arabia normalization", "Ethiopia-Tigray peace", "Colombia-ELN ceasefire", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "Which country experienced political unrest in 2023 with widespread protests?",
-            options: ["Israel", "France", "Iran", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the AI image generator that gained popularity in 2023?",
-            options: ["DALL-E", "Midjourney", "Stable Diffusion", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country hosted the 2023 World Athletics Championships?",
-            options: ["United States", "Hungary", "Japan", "Qatar"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main outcome of the 2023 IMF-World Bank meetings?",
-            options: ["Debt relief for poor countries", "Climate finance reforms", "Special Drawing Rights allocation", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country launched a CBDC pilot in 2023?",
-            options: ["India", "Brazil", "South Africa", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the NASA mission to study metal-rich asteroid in 2023?",
-            options: ["Psyche", "OSIRIS-REx", "Lucy", "DART"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country experienced a banking merger to create a financial giant in 2023?",
-            options: ["Switzerland", "United States", "Japan", "China"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main focus of the 2023 World Economic Forum in Davos?",
-            options: ["AI governance", "Climate action", "Global cooperation", "Economic recovery"],
-            correct: 2,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country launched a new visa program for tech workers in 2023?",
-            options: ["Germany", "Canada", "Australia", "United Kingdom"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the peace plan for Ukraine proposed in 2023?",
-            options: ["China's 12-point plan", "African leaders' initiative", "Both A and B", "Neither A nor B"],
-            correct: 2,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country experienced a constitutional crisis in 2023?",
-            options: ["Pakistan", "Peru", "Israel", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main achievement of the 2023 UN General Assembly?",
-            options: ["SDG Summit", "Climate ambition", "Ukraine resolution", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
+            id: 268,
+            category: "Current Affairs",
             question: "Which country launched a national AI strategy in 2023?",
+            options: ["United Kingdom", "Canada", "Australia", "All of the above"],
+            correctAnswer: 3
+        },
+        {
+            id: 269,
+            category: "Current Affairs",
+            question: "Who won the 2023 Pulitzer Prize for Fiction?",
+            options: ["Barbara Kingsolver", "Hernan Diaz", "Joshua Cohen", "Tara Westover"],
+            correctAnswer: 1
+        },
+        {
+            id: 270,
+            category: "Current Affairs",
+            question: "Which country experienced a major stock market crash in 2023?",
+            options: ["China", "United States", "Japan", "Germany"],
+            correctAnswer: 0
+        },
+        {
+            id: 271,
+            category: "Current Affairs",
+            question: "What new social media app gained popularity among teenagers in 2023?",
+            options: ["BeReal", "TikTok", "Instagram Reels", "Snapchat Spotlight"],
+            correctAnswer: 0
+        },
+        {
+            id: 272,
+            category: "Current Affairs",
+            question: "Which country approved the first gene therapy for sickle cell disease?",
+            options: ["United States", "United Kingdom", "European Union", "Canada"],
+            correctAnswer: 1
+        },
+        {
+            id: 273,
+            category: "Current Affairs",
+            question: "Who became the CEO of Disney in 2022?",
+            options: ["Bob Iger", "Bob Chapek", "Susan Arnold", "Mark Parker"],
+            correctAnswer: 0
+        },
+        {
+            id: 274,
+            category: "Current Affairs",
+            question: "Which country experienced a major volcanic eruption in 2023?",
+            options: ["Iceland", "Italy", "Japan", "Indonesia"],
+            correctAnswer: 0
+        },
+        {
+            id: 275,
+            category: "Current Affairs",
+            question: "What was the main achievement of the Montreal Biodiversity Conference in 2022?",
+            options: ["30x30 agreement", "Plastic pollution treaty", "Climate finance fund", "Carbon trading system"],
+            correctAnswer: 0
+        },
+        {
+            id: 276,
+            category: "Current Affairs",
+            question: "Which country launched a digital nomad visa in 2023?",
+            options: ["Portugal", "Spain", "Italy", "All of the above"],
+            correctAnswer: 3
+        },
+        {
+            id: 277,
+            category: "Current Affairs",
+            question: "Who won the 2023 Women's Tennis Association Finals?",
+            options: ["Iga Świątek", "Aryna Sabalenka", "Coco Gauff", "Elena Rybakina"],
+            correctAnswer: 1
+        },
+        {
+            id: 278,
+            category: "Current Affairs",
+            question: "Which company announced a breakthrough in nuclear fusion in 2022?",
+            options: ["ITER", "National Ignition Facility", "Commonwealth Fusion Systems", "Helion Energy"],
+            correctAnswer: 1
+        },
+        {
+            id: 279,
+            category: "Current Affairs",
+            question: "What major infrastructure project was completed in 2023?",
+            options: ["Istanbul Canal", "California High-Speed Rail", "Brent Spence Bridge", "None were completed"],
+            correctAnswer: 3
+        },
+        {
+            id: 280,
+            category: "Current Affairs",
+            question: "Which country experienced a major political scandal in 2023?",
+            options: ["United Kingdom", "United States", "Japan", "Brazil"],
+            correctAnswer: 2
+        },
+        {
+            id: 281,
+            category: "Current Affairs",
+            question: "Who became the President of the Philippines in 2022?",
+            options: ["Rodrigo Duterte", "Bongbong Marcos", "Leni Robredo", "Manny Pacquiao"],
+            correctAnswer: 1
+        },
+        {
+            id: 282,
+            category: "Current Affairs",
+            question: "Which country approved the first over-the-counter birth control pill?",
+            options: ["United States", "United Kingdom", "Canada", "Australia"],
+            correctAnswer: 0
+        },
+        {
+            id: 283,
+            category: "Current Affairs",
+            question: "What was the main outcome of the WTO Ministerial Conference in 2022?",
+            options: ["Fisheries subsidies agreement", "COVID-19 vaccine waiver", "Digital trade rules", "Agriculture reforms"],
+            correctAnswer: 0
+        },
+        {
+            id: 284,
+            category: "Current Affairs",
+            question: "Which company faced a major data breach affecting millions in 2023?",
+            options: ["LastPass", "Twitter", "T-Mobile", "All of the above"],
+            correctAnswer: 3
+        },
+        {
+            id: 285,
+            category: "Current Affairs",
+            question: "Who won the 2023 Man Booker International Prize?",
+            options: ["Time Shelter by Georgi Gospodinov", "The Books of Jacob by Olga Tokarczuk", "The Discomfort of Evening by Marieke Lucas Rijneveld", "Celestial Bodies by Jokha Alharthi"],
+            correctAnswer: 0
+        },
+        {
+            id: 286,
+            category: "Current Affairs",
+            question: "Which country experienced a major cyber attack on critical infrastructure in 2023?",
+            options: ["United States", "United Kingdom", "Australia", "All of the above"],
+            correctAnswer: 3
+        },
+        {
+            id: 287,
+            category: "Current Affairs",
+            question: "What new technology was showcased at CES 2023?",
+            options: ["Foldable laptops", "AI-powered assistants", "Electric vehicles", "All of the above"],
+            correctAnswer: 3
+        },
+        {
+            id: 288,
+            category: "Current Affairs",
+            question: "Which country passed a law requiring companies to disclose climate risks?",
+            options: ["European Union", "United States", "Japan", "All of the above"],
+            correctAnswer: 3
+        },
+        {
+            id: 289,
+            category: "Current Affairs",
+            question: "Who became the CEO of Starbucks in 2023?",
+            options: ["Howard Schultz", "Laxman Narasimhan", "Kevin Johnson", "Rosalind Brewer"],
+            correctAnswer: 1
+        },
+        {
+            id: 290,
+            category: "Current Affairs",
+            question: "Which country experienced a major transport strike in 2023?",
             options: ["United Kingdom", "France", "Germany", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
+            correctAnswer: 3
         },
         {
-            question: "What was the name of the climate finance fund operationalized in 2023?",
-            options: ["Loss and Damage Fund", "Green Climate Fund", "Adaptation Fund", "Global Environment Facility"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 291,
+            category: "Current Affairs",
+            question: "What was the theme of International Women's Day 2023?",
+            options: ["Choose to Challenge", "Break the Bias", "DigitALL: Innovation and technology for gender equality", "Women in leadership"],
+            correctAnswer: 2
         },
         {
-            question: "Which country experienced a major drought affecting the Panama Canal in 2023?",
-            options: ["Panama", "Colombia", "Costa Rica", "Nicaragua"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 292,
+            category: "Current Affairs",
+            question: "Which company announced plans for a humanoid robot?",
+            options: ["Tesla", "Boston Dynamics", "Google", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "What was the main focus of the 2023 Internet Governance Forum?",
-            options: ["AI governance", "Digital divide", "Cybersecurity", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 293,
+            category: "Current Affairs",
+            question: "Who became the President of Angola in 2022?",
+            options: ["João Lourenço", "José Eduardo dos Santos", "Adalberto Costa Júnior", "Isabel dos Santos"],
+            correctAnswer: 0
         },
         {
-            question: "Which country launched a semiconductor manufacturing initiative in 2023?",
-            options: ["United States", "European Union", "Japan", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 294,
+            category: "Current Affairs",
+            question: "Which country launched a national hydrogen strategy in 2023?",
+            options: ["United States", "Germany", "Japan", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "What was the name of the EU's AI Act finalized in 2023?",
-            options: ["AI Act", "Digital Services Act", "Digital Markets Act", "AI Regulation"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 295,
+            category: "Current Affairs",
+            question: "What major sporting event was held in Birmingham in 2022?",
+            options: ["Commonwealth Games", "Asian Games", "Pan American Games", "African Games"],
+            correctAnswer: 0
         },
         {
-            question: "Which country experienced a major power grid failure in 2023?",
-            options: ["Pakistan", "Bangladesh", "India", "South Africa"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 296,
+            category: "Current Affairs",
+            question: "Which company announced a major investment in quantum computing?",
+            options: ["IBM", "Google", "Microsoft", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "What was the main outcome of the 2023 BRICS Summit?",
-            options: ["Expansion of members", "New currency discussion", "Trade agreements", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 297,
+            category: "Current Affairs",
+            question: "Who won the 2023 Academy Award for Best Director?",
+            options: ["Steven Spielberg", "Daniel Kwan and Daniel Scheinert", "Martin McDonagh", "Todd Field"],
+            correctAnswer: 1
         },
         {
-            question: "Which country launched a digital identity system in 2023?",
-            options: ["India", "Estonia", "Singapore", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 298,
+            category: "Current Affairs",
+            question: "Which country experienced a major migration crisis in 2023?",
+            options: ["United States", "European Union", "United Kingdom", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "What was the name of the global tax agreement implemented in 2023?",
-            options: ["Global Minimum Tax", "Digital Services Tax", "Corporate Tax Reform", "BEPS 2.0"],
-            correct: 0,
-            category: "Current Affairs"
+            id: 299,
+            category: "Current Affairs",
+            question: "What new feature was added to WhatsApp in 2023?",
+            options: ["Channels", "Edit messages", "Screen sharing", "All of the above"],
+            correctAnswer: 3
         },
         {
-            question: "Which country experienced a major mining disaster in 2023?",
-            options: ["South Africa", "China", "Turkey", "Chile"],
-            correct: 2,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main achievement of the 2023 UN Ocean Conference?",
-            options: ["30x30 biodiversity protection", "Plastic pollution treaty", "Marine protected areas", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country launched a national space strategy in 2023?",
-            options: ["Australia", "Canada", "South Korea", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the peace agreement signed in Ethiopia in 2023?",
-            options: ["Pretoria Agreement", "Nairobi Agreement", "Jeddah Agreement", "Doha Agreement"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country experienced a major pharmaceutical factory explosion in 2023?",
-            options: ["India", "China", "Bangladesh", "Vietnam"],
-            correct: 1,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main outcome of the 2023 WTO Ministerial Conference?",
-            options: ["Fisheries subsidies agreement", "E-commerce moratorium", "Agriculture reforms", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country launched a green hydrogen initiative in 2023?",
-            options: ["Germany", "Australia", "Saudi Arabia", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the EU's migration pact agreed in 2023?",
-            options: ["Migration and Asylum Pact", "Schengen Reform", "Border Protection Agreement", "Asylum System Reform"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country experienced a major data breach affecting millions in 2023?",
-            options: ["United States", "India", "China", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main achievement of the 2023 Global Refugee Forum?",
-            options: ["Funding pledges", "Resettlement commitments", "Integration programs", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country launched a national cybersecurity strategy in 2023?",
-            options: ["United States", "United Kingdom", "Japan", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the peace talks for Yemen in 2023?",
-            options: ["Stockholm Agreement", "Geneva Talks", "Muscat Dialogue", "Oman Mediation"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country experienced a major bridge collapse in 2023?",
-            options: ["India", "United States", "Brazil", "South Africa"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main outcome of the 2023 International Court of Justice rulings?",
-            options: ["Climate change advisory opinion", "Ukraine vs Russia case", "Myanmar genocide case", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country launched a national education reform in 2023?",
-            options: ["Finland", "Singapore", "South Korea", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the name of the EU-China summit held in 2023?",
-            options: ["EU-China Summit", "Comprehensive Agreement on Investment", "Strategic Dialogue", "High-Level Meeting"],
-            correct: 0,
-            category: "Current Affairs"
-        },
-        {
-            question: "Which country experienced a major food security crisis in 2023?",
-            options: ["Afghanistan", "Yemen", "South Sudan", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
-        },
-        {
-            question: "What was the main achievement of the 2023 Global Health Summit?",
-            options: ["Pandemic preparedness", "Vaccine equity", "Health system strengthening", "All of the above"],
-            correct: 3,
-            category: "Current Affairs"
+            id: 300,
+            category: "Current Affairs",
+            question: "Which country hosted the G7 Summit in 2023?",
+            options: ["Germany", "Japan", "United Kingdom", "Canada"],
+            correctAnswer: 1
         }
-        // Total: 100 Current Affairs questions
-    ]
-};
+    ];
+    
+    // Initialize the application
+    function init() {
+        // Load leaderboard from localStorage
+        loadLeaderboard();
+        
+        // Set up event listeners
+        setupEventListeners();
+    }
+    
+    // Set up all event listeners
+    function setupEventListeners() {
+        // Welcome screen
+        startQuizBtn.addEventListener('click', startQuiz);
+        viewLeaderboardBtn.addEventListener('click', () => showScreen('leaderboard'));
+        
+        // Quiz screen
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        quitQuizBtn.addEventListener('click', quitQuiz);
+        
+        // Results screen
+        playAgainBtn.addEventListener('click', playAgain);
+        viewLeaderboardResultsBtn.addEventListener('click', () => showScreen('leaderboard'));
+        goHomeBtn.addEventListener('click', () => showScreen('welcome'));
+        
+        // Leaderboard screen
+        tabAllBtn.addEventListener('click', () => switchLeaderboardTab('all'));
+        tabTodayBtn.addEventListener('click', () => switchLeaderboardTab('today'));
+        clearLeaderboardBtn.addEventListener('click', clearLeaderboard);
+        backToHomeBtn.addEventListener('click', () => showScreen('welcome'));
+        
+        // Allow Enter key to start quiz
+        playerNameInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                startQuiz();
+            }
+        });
+    }
+    
+    // Show a specific screen and hide others
+    function showScreen(screenName) {
+        // Hide all screens
+        Object.keys(screens).forEach(key => {
+            screens[key].classList.remove('active');
+        });
+        
+        // Show the requested screen
+        screens[screenName].classList.add('active');
+        
+        // If showing leaderboard, update it
+        if (screenName === 'leaderboard') {
+            updateLeaderboard();
+        }
+    }
+    
+    // Start the quiz
+    function startQuiz() {
+        const playerName = playerNameInput.value.trim();
+        
+        if (!playerName) {
+            alert('Please enter your name to start the quiz.');
+            playerNameInput.focus();
+            return;
+        }
+        
+        // Set player name
+        quizState.playerName = playerName;
+        currentPlayerSpan.textContent = playerName;
+        resultsPlayerSpan.textContent = playerName;
+        
+        // Reset quiz state
+        quizState.currentQuestionIndex = 0;
+        quizState.score = 0;
+        quizState.userAnswers = [];
+        quizState.quizStartTime = new Date();
+        quizState.elapsedTime = 0;
+        
+        // Select 10 random unique questions from the bank
+        quizState.selectedQuestions = selectRandomQuestions(10);
+        
+        // Update UI
+        updateQuestionCounter();
+        updateScoreCounter();
+        updateProgressBar();
+        
+        // Start timer
+        startTimer();
+        
+        // Load first question
+        loadQuestion();
+        
+        // Show quiz screen
+        showScreen('quiz');
+    }
+    
+    // Select random unique questions from the question bank
+    function selectRandomQuestions(count) {
+        // Create a copy of the question bank
+        const availableQuestions = [...questionBank];
+        const selected = [];
+        
+        // If we don't have enough questions, return what we have
+        if (availableQuestions.length < count) {
+            console.warn(`Not enough questions in the bank. Requested: ${count}, Available: ${availableQuestions.length}`);
+            return availableQuestions;
+        }
+        
+        // Select random questions
+        for (let i = 0; i < count; i++) {
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            selected.push(availableQuestions[randomIndex]);
+            
+            // Remove the selected question from available questions
+            availableQuestions.splice(randomIndex, 1);
+        }
+        
+        return selected;
+    }
+    
+    // Start the quiz timer
+    function startTimer() {
+        quizState.quizStartTime = new Date();
+        
+        // Clear any existing timer
+        if (quizState.timerInterval) {
+            clearInterval(quizState.timerInterval);
+        }
+        
+        // Update timer every second
+        quizState.timerInterval = setInterval(updateTimer, 1000);
+    }
+    
+    // Update the timer display
+    function updateTimer() {
+        const now = new Date();
+        quizState.elapsedTime = Math.floor((now - quizState.quizStartTime) / 1000);
+        
+        const minutes = Math.floor(quizState.elapsedTime / 60);
+        const seconds = quizState.elapsedTime % 60;
+        
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Load the current question
+    function loadQuestion() {
+        const currentQuestion = quizState.selectedQuestions[quizState.currentQuestionIndex];
+        
+        // Update question text
+        questionElement.textContent = currentQuestion.question;
+        
+        // Update category indicator
+        questionElement.dataset.category = currentQuestion.category;
+        
+        // Clear previous options
+        optionsContainer.innerHTML = '';
+        
+        // Create option elements
+        currentQuestion.options.forEach((option, index) => {
+            const optionElement = document.createElement('div');
+            optionElement.className = 'option';
+            optionElement.dataset.index = index;
+            
+            // Add label (A, B, C, D)
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'option-label';
+            labelSpan.textContent = String.fromCharCode(65 + index); // A, B, C, D
+            
+            // Add option text
+            const textParagraph = document.createElement('p');
+            textParagraph.className = 'option-text';
+            textParagraph.textContent = option;
+            
+            optionElement.appendChild(labelSpan);
+            optionElement.appendChild(textParagraph);
+            
+            // Add click event
+            optionElement.addEventListener('click', () => selectOption(index));
+            
+            optionsContainer.appendChild(optionElement);
+        });
+        
+        // Reset next button
+        nextQuestionBtn.disabled = true;
+        
+        // If user already answered this question, show their answer
+        if (quizState.userAnswers[quizState.currentQuestionIndex] !== undefined) {
+            const userAnswer = quizState.userAnswers[quizState.currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            options[userAnswer].classList.add('selected');
+            
+            // Show correct/incorrect if we're reviewing
+            if (quizState.currentQuestionIndex === quizState.selectedQuestions.length) {
+                const correctAnswer = currentQuestion.correctAnswer;
+                
+                options[correctAnswer].classList.add('correct');
+                
+                if (userAnswer !== correctAnswer) {
+                    options[userAnswer].classList.add('incorrect');
+                }
+            }
+            
+            nextQuestionBtn.disabled = false;
+        }
+    }
+    
+    // Select an option
+    function selectOption(optionIndex) {
+        // Only allow selection if we haven't answered this question yet
+        if (quizState.userAnswers[quizState.currentQuestionIndex] !== undefined) {
+            return;
+        }
+        
+        // Remove 'selected' class from all options
+        const options = document.querySelectorAll('.option');
+        options.forEach(option => {
+            option.classList.remove('selected');
+        });
+        
+        // Add 'selected' class to clicked option
+        options[optionIndex].classList.add('selected');
+        
+        // Enable next button
+        nextQuestionBtn.disabled = false;
+        
+        // Store user's answer
+        quizState.userAnswers[quizState.currentQuestionIndex] = optionIndex;
+        
+        // Check if answer is correct
+        const currentQuestion = quizState.selectedQuestions[quizState.currentQuestionIndex];
+        if (optionIndex === currentQuestion.correctAnswer) {
+            quizState.score++;
+            updateScoreCounter();
+        }
+    }
+    
+    // Move to the next question
+    function nextQuestion() {
+        // If user hasn't answered this question, don't proceed
+        if (quizState.userAnswers[quizState.currentQuestionIndex] === undefined) {
+            alert('Please select an answer before proceeding.');
+            return;
+        }
+        
+        // Move to next question
+        quizState.currentQuestionIndex++;
+        
+        // Update progress
+        updateQuestionCounter();
+        updateProgressBar();
+        
+        // If we've answered all questions, show results
+        if (quizState.currentQuestionIndex >= quizState.selectedQuestions.length) {
+            finishQuiz();
+        } else {
+            // Load next question
+            loadQuestion();
+        }
+    }
+    
+    // Finish the quiz and show results
+    function finishQuiz() {
+        // Stop the timer
+        clearInterval(quizState.timerInterval);
+        
+        // Calculate final score
+        const correctAnswers = quizState.score;
+        const incorrectAnswers = quizState.selectedQuestions.length - quizState.score;
+        
+        // Update results screen
+        finalScoreElement.textContent = quizState.score;
+        correctAnswersElement.textContent = correctAnswers;
+        incorrectAnswersElement.textContent = incorrectAnswers;
+        
+        // Format time taken
+        const minutes = Math.floor(quizState.elapsedTime / 60);
+        const seconds = quizState.elapsedTime % 60;
+        timeTakenElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Update the progress ring animation
+        const circumference = 2 * Math.PI * 90;
+        const scorePercentage = quizState.score / quizState.selectedQuestions.length;
+        const offset = circumference - (scorePercentage * circumference);
+        
+        const circle = document.querySelector('.progress-ring__circle');
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference;
+        
+        // Animate the progress ring
+        setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+        }, 100);
+        
+        // Save score to leaderboard
+        saveScoreToLeaderboard();
+        
+        // Show results screen
+        showScreen('results');
+    }
+    
+    // Quit the quiz and go back to welcome screen
+    function quitQuiz() {
+        if (confirm('Are you sure you want to quit the quiz? Your progress will be lost.')) {
+            // Stop timer
+            clearInterval(quizState.timerInterval);
+            
+            // Reset quiz state
+            quizState = {
+                playerName: '',
+                currentQuestionIndex: 0,
+                score: 0,
+                selectedQuestions: [],
+                userAnswers: [],
+                quizStartTime: null,
+                timerInterval: null,
+                elapsedTime: 0
+            };
+            
+            // Show welcome screen
+            showScreen('welcome');
+        }
+    }
+    
+    // Play again
+    function playAgain() {
+        // Reset player name input
+        playerNameInput.value = quizState.playerName;
+        
+        // Start new quiz
+        startQuiz();
+    }
+    
+    // Update question counter
+    function updateQuestionCounter() {
+        questionCounter.textContent = `${quizState.currentQuestionIndex + 1}/${quizState.selectedQuestions.length}`;
+    }
+    
+    // Update score counter
+    function updateScoreCounter() {
+        scoreCounter.textContent = quizState.score;
+    }
+    
+    // Update progress bar
+    function updateProgressBar() {
+        const progressPercentage = ((quizState.currentQuestionIndex + 1) / quizState.selectedQuestions.length) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+    
+    // Leaderboard functions
+    function loadLeaderboard() {
+        const leaderboardData = localStorage.getItem('quizLeaderboard');
+        if (leaderboardData) {
+            return JSON.parse(leaderboardData);
+        }
+        return [];
+    }
+    
+    function saveScoreToLeaderboard() {
+        const leaderboard = loadLeaderboard();
+        
+        // Create new score entry
+        const newScore = {
+            playerName: quizState.playerName,
+            score: quizState.score,
+            date: new Date().toISOString(),
+            time: quizState.elapsedTime
+        };
+        
+        // Add to leaderboard
+        leaderboard.push(newScore);
+        
+        // Sort by score (highest first), then by time (fastest first for same score)
+        leaderboard.sort((a, b) => {
+            if (b.score !== a.score) {
+                return b.score - a.score;
+            }
+            return a.time - b.time;
+        });
+        
+        // Keep only top 25 scores
+        const topScores = leaderboard.slice(0, 25);
+        
+        // Save back to localStorage
+        localStorage.setItem('quizLeaderboard', JSON.stringify(topScores));
+    }
+    
+    function updateLeaderboard(filter = 'all') {
+        const leaderboard = loadLeaderboard();
+        
+        // Clear current entries
+        leaderboardEntries.innerHTML = '';
+        
+        // Filter if needed
+        let filteredLeaderboard = leaderboard;
+        if (filter === 'today') {
+            const today = new Date().toDateString();
+            filteredLeaderboard = leaderboard.filter(entry => {
+                const entryDate = new Date(entry.date).toDateString();
+                return entryDate === today;
+            });
+        }
+        
+        // Display entries
+        if (filteredLeaderboard.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'leaderboard-entry';
+            emptyMessage.innerHTML = `<div class="no-scores" style="grid-column: 1 / span 4; text-align: center; padding: 30px; color: #a9a9a9;">
+                <i class="fas fa-trophy" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                <p>No scores yet. Be the first to take the quiz!</p>
+            </div>`;
+            leaderboardEntries.appendChild(emptyMessage);
+        } else {
+            filteredLeaderboard.forEach((entry, index) => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'leaderboard-entry';
+                
+                // Highlight current player
+                if (entry.playerName === quizState.playerName) {
+                    entryElement.classList.add('current-player');
+                }
+                
+                // Format date
+                const dateObj = new Date(entry.date);
+                const formattedDate = dateObj.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                // Format time
+                const minutes = Math.floor(entry.time / 60);
+                const seconds = entry.time % 60;
+                const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                entryElement.innerHTML = `
+                    <span class="rank">${index + 1}</span>
+                    <span class="player">
+                        <i class="fas fa-user"></i>
+                        ${entry.playerName}
+                    </span>
+                    <span class="score">${entry.score}/10</span>
+                    <span class="date" title="Time: ${formattedTime}">${formattedDate}</span>
+                `;
+                
+                leaderboardEntries.appendChild(entryElement);
+            });
+        }
+        
+        // Update active tab
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        if (filter === 'all') {
+            tabAllBtn.classList.add('active');
+        } else {
+            tabTodayBtn.classList.add('active');
+        }
+    }
+    
+    function switchLeaderboardTab(tab) {
+        updateLeaderboard(tab);
+    }
+    
+    function clearLeaderboard() {
+        if (confirm('Are you sure you want to clear the entire leaderboard? This action cannot be undone.')) {
+            localStorage.removeItem('quizLeaderboard');
+            updateLeaderboard();
+        }
+    }
+    
+    // Initialize the app
+    init();
+});
